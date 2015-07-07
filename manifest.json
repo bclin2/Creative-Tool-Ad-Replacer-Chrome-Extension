@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+ 
+  "name": "Ad Replacer",
+  "description": "This extension will visually replace ads on a webpage",
+  "version": "0.0",
+ 
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": ["jquery-2.1.4.min.js", "content.js"]
+    }
+  ],
+  "browser_action": { 
+   "default_icon": "placeholder_icon.png"
+  }
+}
