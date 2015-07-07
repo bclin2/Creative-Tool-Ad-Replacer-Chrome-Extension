@@ -11,6 +11,7 @@ Helps users replace and modify ads on a webpage
   * Manual resizing using mouse drag
 
 Ideas: 
+* Set flag for pausing extension
+* Draggable and resizable element Example: http://jsfiddle.net/4Vfm5/1095/
+* Overlay Example: http://codepen.io/ianfarb/pen/ikeAf
 
-Draggable and resizable element Example: 
-http://jsfiddle.net/4Vfm5/1095/
