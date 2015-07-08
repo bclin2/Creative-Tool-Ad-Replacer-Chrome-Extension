@@ -105,14 +105,6 @@ chrome.runtime.onMessage.addListener(
           //causes graphical errors
 
 
-
-
-
-
-
-      //PROBLEMS: for the first iFrame, adHeight isn't being applied correctly
-                //By removing the iFrame, the collection is also being removed
-
     }
   }
 );
