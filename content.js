@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if( request.message === "clicked_browser_action" ) {
       alert("Ad Replacer is active.");
-      var adHeight, adWidth, $iFrameParentDiv, containsiFrame = false, placeholder, placeholderDimensions, inspectOverlay;
+      var adHeight, adWidth, $iFrameParentDiv, containsiFrame = false, placeholder, overlayDimensions, inspectOverlay;
       console.log("Content.js is running!");
 
 
@@ -28,8 +28,8 @@ chrome.runtime.onMessage.addListener(
       // }).on('keydown', function(event) {
       //   var ctrl = 17;
       //   console.log('Keydown recognized');
-      //   placeholderDimensions = '<div class="placeholderDimensions" style="color: white; font-size: 1vw; text-align: center; padding-top: 20%">' + adWidth + 'X' + adHeight + '</div>';
-      //   placeholder = '<div class=placeholder style="background-color: rgb(0,0,0); height: ' + adHeight + 'px; width: ' + adWidth + 'px">' + placeholderDimensions + '</div>';
+      //   overlayDimensions = '<div class="overlayDimensions" style="color: white; font-size: 1vw; text-align: center; padding-top: 20%">' + adWidth + 'X' + adHeight + '</div>';
+      //   placeholder = '<div class=placeholder style="background-color: rgb(0,0,0); height: ' + adHeight + 'px; width: ' + adWidth + 'px">' + overlayDimensions + '</div>';
 
       //   if (event.keyCode === ctrl) {
       //     console.log('keydown for ctrl recognized');
@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener(
 
       $('body').css('cursor', 'crosshair');
 
-      $('*').not('body, html').hover(function(e) {
+      $('*').not('body, html, .inspectOverlay, .overlayDimensions').hover(function(e) {
         e.stopPropagation();
         e.preventDefault();
         if ($(this).is('iframe')) {
@@ -62,12 +62,14 @@ chrome.runtime.onMessage.addListener(
 
         $(this).css('border', '1px solid black');
         inspectOverlay = '<div class=inspectOverlay style="position: absolute; opacity: 0.75; z-index: 1000; background-color: #93CFF4; height: ' + adHeight + 'px; width: ' + adWidth + 'px"></div>';
-        placeholderDimensions = '<div class="placeholderDimensions" style="position: relative, z-index: 1200; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0">' + adWidth + 'X' + adHeight + '</div>';
+        overlayDimensions = '<div class="overlayDimensions" style="position: relative, z-index: 1200; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0">' + adWidth + 'X' + adHeight + '</div>';
 
         $(this).prepend(inspectOverlay);
-        // $(this).append(placeholderDimensions);
-        $('.inspectOverlay').html(placeholderDimensions);
-        console.log($(this));
+        // $(this).append(overlayDimensions);
+        $('.inspectOverlay').html(overlayDimensions);
+
+        console.log('This:', $(this));
+        console.log('children: ', $(this).children());
       }, function(e) {
         $(this).css('border', "0px");
         if (containsiFrame) {
@@ -76,15 +78,15 @@ chrome.runtime.onMessage.addListener(
           console.log('LEAVING IFRAME', containsiFrame);
         }
         $($(this).children('.inspectOverlay')).remove();
-        $($(this).children('.placeholderDimensions')).remove();
+        $($(this).children('.overlayDimensions')).remove();
 
       });
 
       //     .on('keydown', function(event) {
       //     var ctrl = 17;
       //     console.log('Keydown recognized');
-      //     placeholderDimensions = '<div class="placeholderDimensions" style="color: white; font-size: 1vw; text-align: center; padding-top: 20%">' + adWidth + 'X' + adHeight + '</div>';
-      //     placeholder = '<div class=placeholder style="background-color: rgb(0,0,0); height: ' + adHeight + 'px; width: ' + adWidth + 'px">' + placeholderDimensions + '</div>';
+      //     overlayDimensions = '<div class="overlayDimensions" style="color: white; font-size: 1vw; text-align: center; padding-top: 20%">' + adWidth + 'X' + adHeight + '</div>';
+      //     placeholder = '<div class=placeholder style="background-color: rgb(0,0,0); height: ' + adHeight + 'px; width: ' + adWidth + 'px">' + overlayDimensions + '</div>';
 
       //     if (event.keyCode === ctrl && containsiFrame) {
       //       console.log('keydown for ctrl recognized');
