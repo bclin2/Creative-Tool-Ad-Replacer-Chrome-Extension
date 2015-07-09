@@ -4,6 +4,10 @@
 // capturing click events on an iframe from a different domain is impossible
 //The position
 
+//for overlay, in case I want to try the tooltip. Needs bootstrap.
+//data-toggle="tooltip" title="TESTDIV"
+
+
 var selectedElement = [];
 
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
@@ -14,7 +18,6 @@ $overlay.on('click', function(event) {
 
   event.stopPropagation();
   event.preventDefault();
-  // debugger;
   console.log('clicked');
 });
 
@@ -37,6 +40,8 @@ chrome.runtime.onMessage.addListener(
 
       $('div').not('body, html, .inspectOverlay, .overlayDimensions').mousemove(function(event) {
         event.stopPropagation();
+        // $('[data-toggle="tooltip"]').tooltip();
+
         //get coordinates
         var x = event.pageX - window.pageXOffset;
         var y = event.pageY - window.pageYOffset;
@@ -57,6 +62,7 @@ chrome.runtime.onMessage.addListener(
           width: divWidth,
           height: divHeight
         });
+        $overlay.html('<span style="background-color: black; color: white">' + divWidth + 'X' + divHeight + '</span>');
         console.log("stack:", elementsStack);
         console.log("element: ", $topOfStack);
         console.log("x:", x, "y:", y);
@@ -215,4 +221,4 @@ chrome.runtime.onMessage.addListener(
 
 
 //commit where tool works like inspect for chrome devtools
-//34a18f209fcf602aef8137e121c47e5cd1e5b215
+//454b7e644abc2de3970def51954eb1e05c3de42a
