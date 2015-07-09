@@ -6,61 +6,61 @@
 
 var selectedElement = [];
 
-var $overlay = $('<div class="inspectOverlay" style="background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
+var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 99999999; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 
-$overlay.on('click', function(event) {
-  $('body').off('mouseenter.creativeTool mouseleave.creativeTool');
+// $overlay.on('click', function(event) {
+//   $('body').off('mouseenter.creativeTool mouseleave.creativeTool');
 
-  event.stopPropagation();
-  event.preventDefault();
-  // debugger;
-  console.log('clicked');
-});
+//   event.stopPropagation();
+//   event.preventDefault();
+//   // debugger;
+//   console.log('clicked');
+// });
 
-function updateSelectedElement() {
-  var element = selectedElement[selectedElement.length - 1];
-  var position;
-  var styles;
+// function updateSelectedElement() {
+//   var element = selectedElement[selectedElement.length - 1];
+//   var position;
+//   var styles;
 
-  if (element) {
-    // if (element.css('position') === 'auto') {
-    //   position = 0;
-    // } else {
-    //   position = element.css('position');
-    // }
-    position = element.position();
+//   if (element) {
+//     // if (element.css('position') === 'auto') {
+//     //   position = 0;
+//     // } else {
+//     //   position = element.css('position');
+//     // }
+//     position = element.position();
 
-    styles = element.css(['padding']);
+//     styles = element.css(['padding']);
 
 
-    //problem is with positions, it seems to carry over to other overlay elements
-      //margins are also a factor
-      //without positions, overlay sometimes doesn't match up over the right elements
-    console.log('element:', element);
-    console.log('position from element:', position.left);
-    $overlay.css({
-      position: "absolute",
-      width: element.width(),
-      height: element.height(),
-      padding: styles.padding,
-      top: position.top,
-      left: position.left,
-      right: position.right,
-      bottom: position.bottom,
-      "margin-left": element.css('margin-left'),
-      "margin-top": element.css('margin-top'),
-      "margin-right": element.css('margin-right'),
-      "margin-bottom": element.css('margin-bottom')
-    });
+//     //problem is with positions, it seems to carry over to other overlay elements
+//       //margins are also a factor
+//       //without positions, overlay sometimes doesn't match up over the right elements
+//     console.log('element:', element);
+//     console.log('position from element:', position.left);
+//     $overlay.css({
+//       position: "absolute",
+//       width: element.width(),
+//       height: element.height(),
+//       padding: styles.padding,
+//       top: position.top,
+//       left: position.left,
+//       right: position.right,
+//       bottom: position.bottom,
+//       "margin-left": element.css('margin-left'),
+//       "margin-top": element.css('margin-top'),
+//       "margin-right": element.css('margin-right'),
+//       "margin-bottom": element.css('margin-bottom')
+//     });
 
-    // debugger;
-    console.log('overlay', $overlay.css('left'));
-    element.parent().prepend($overlay);
-  } else {
-    $overlay.detach();
-  }
-}
+//     // debugger;
+//     console.log('overlay', $overlay.css('left'));
+//     element.parent().prepend($overlay);
+//   } else {
+//     $overlay.detach();
+//   }
+// }
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -75,16 +75,51 @@ chrome.runtime.onMessage.addListener(
       console.log("Content.js is running!");
 
       $('body').css('cursor', 'crosshair');
+
+      //debugging purposes, removes all hrefs from anchor
       $('a').removeAttr('href');
 
-      $('body').on('mouseenter.creativeTool', '*:not(.inspectOverlay):not(.overlayDimensions)', function(event) {
-        selectedElement.push($(event.target));
-        updateSelectedElement();
+      $('div').not('body, html, .inspectOverlay, .overlayDimensions').mousemove(function(event) {
+        event.stopPropagation();
+        //get coordinates
+        var x = event.pageX - window.pageXOffset;
+        var y = event.pageY - window.pageYOffset;
+        //get elements on point from coordinates, this provides me the stack
+        var elementsStack = document.elementsFromPoint(x, y);
+
+        if ($(elementsStack[0]).is('.inspectOverlay')) {
+          var $topOfStack = $(elementsStack[1]);
+        } else {
+          $topOfStack = $(elementsStack[0]);
+        }
+        //set overlay on the top of stack
+        // console.log($(topOfStack));
+        $topOfStack.before($overlay);
+        divHeight = $topOfStack.parent().height();
+        divWidth = $topOfStack.parent().width();
+        $overlay.css({
+          width: divWidth,
+          height: divHeight
+        });
+        console.log("stack:", elementsStack);
+        console.log("element: ", $topOfStack);
+        console.log("x:", x, "y:", y);
+
+        //remove overlay on everything else
       })
-      .on('mouseleave.creativeTool', '*:not(.inspectOverlay):not(.overlayDimensions)', function(event) {
-        selectedElement.pop();
-        updateSelectedElement();
-      });
+
+      // problems: 
+        //divHeight
+
+
+      // $('body').on('mouseenter.creativeTool', '*:not(.inspectOverlay):not(.overlayDimensions)', function(event) {
+      //   selectedElement.push($(event.target));
+      //   updateSelectedElement();
+      // })
+      // .on('mouseleave.creativeTool', '*:not(.inspectOverlay):not(.overlayDimensions)', function(event) {
+      //   selectedElement.pop();
+      //   updateSelectedElement();
+      // });
 
       /*var inspectOverlayTemplates = function(divWidth, divHeight) {
         this._inspectOverlay = '<div class="inspectOverlay" style="position: absolute; opacity: 0.75; background-color: #93CFF4; height: ' + divHeight + 'px; width: ' + divWidth + 'px"></div>';
