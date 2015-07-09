@@ -2,10 +2,11 @@
 // alert("Hello from the chrome extension!");
 // HAVING default_popup ENABLED IN THE manifest.json causes all other js to not run
 // capturing click events on an iframe from a different domain is impossible
+//The position
 
 var selectedElement = [];
 
-var $overlay = $('<div class="inspectOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
+var $overlay = $('<div class="inspectOverlay" style="background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 99999999; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 
 $overlay.on('click', function(event) {
@@ -13,7 +14,7 @@ $overlay.on('click', function(event) {
 
   event.stopPropagation();
   event.preventDefault();
-
+  // debugger;
   console.log('clicked');
 });
 
@@ -23,19 +24,39 @@ function updateSelectedElement() {
   var styles;
 
   if (element) {
+    // if (element.css('position') === 'auto') {
+    //   position = 0;
+    // } else {
+    //   position = element.css('position');
+    // }
     position = element.position();
+
     styles = element.css(['padding']);
 
 
+    //problem is with positions, it seems to carry over to other overlay elements
+      //margins are also a factor
+      //without positions, overlay sometimes doesn't match up over the right elements
+    console.log('element:', element);
+    console.log('position from element:', position.left);
     $overlay.css({
+      position: "absolute",
       width: element.width(),
       height: element.height(),
       padding: styles.padding,
       top: position.top,
-      left: position.left
+      left: position.left,
+      right: position.right,
+      bottom: position.bottom,
+      "margin-left": element.css('margin-left'),
+      "margin-top": element.css('margin-top'),
+      "margin-right": element.css('margin-right'),
+      "margin-bottom": element.css('margin-bottom')
     });
 
-    element.after($overlay);
+    // debugger;
+    console.log('overlay', $overlay.css('left'));
+    element.parent().prepend($overlay);
   } else {
     $overlay.detach();
   }
@@ -54,6 +75,7 @@ chrome.runtime.onMessage.addListener(
       console.log("Content.js is running!");
 
       $('body').css('cursor', 'crosshair');
+      $('a').removeAttr('href');
 
       $('body').on('mouseenter.creativeTool', '*:not(.inspectOverlay):not(.overlayDimensions)', function(event) {
         selectedElement.push($(event.target));
