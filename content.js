@@ -18,7 +18,6 @@ $overlay.on('click', function(event) {
 
   event.stopPropagation();
   event.preventDefault();
-  // debugger;
   console.log('clicked');
 });
 
