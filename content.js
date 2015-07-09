@@ -9,58 +9,14 @@ var selectedElement = [];
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 99999999; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 
-// $overlay.on('click', function(event) {
-//   $('body').off('mouseenter.creativeTool mouseleave.creativeTool');
+$overlay.on('click', function(event) {
+  $('*').off('mousemove');
 
-//   event.stopPropagation();
-//   event.preventDefault();
-//   // debugger;
-//   console.log('clicked');
-// });
-
-// function updateSelectedElement() {
-//   var element = selectedElement[selectedElement.length - 1];
-//   var position;
-//   var styles;
-
-//   if (element) {
-//     // if (element.css('position') === 'auto') {
-//     //   position = 0;
-//     // } else {
-//     //   position = element.css('position');
-//     // }
-//     position = element.position();
-
-//     styles = element.css(['padding']);
-
-
-//     //problem is with positions, it seems to carry over to other overlay elements
-//       //margins are also a factor
-//       //without positions, overlay sometimes doesn't match up over the right elements
-//     console.log('element:', element);
-//     console.log('position from element:', position.left);
-//     $overlay.css({
-//       position: "absolute",
-//       width: element.width(),
-//       height: element.height(),
-//       padding: styles.padding,
-//       top: position.top,
-//       left: position.left,
-//       right: position.right,
-//       bottom: position.bottom,
-//       "margin-left": element.css('margin-left'),
-//       "margin-top": element.css('margin-top'),
-//       "margin-right": element.css('margin-right'),
-//       "margin-bottom": element.css('margin-bottom')
-//     });
-
-//     // debugger;
-//     console.log('overlay', $overlay.css('left'));
-//     element.parent().prepend($overlay);
-//   } else {
-//     $overlay.detach();
-//   }
-// }
+  event.stopPropagation();
+  event.preventDefault();
+  // debugger;
+  console.log('clicked');
+});
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -251,3 +207,12 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
+
+
+
+
+
+
+
+//commit where tool works like inspect for chrome devtools
+//34a18f209fcf602aef8137e121c47e5cd1e5b215
