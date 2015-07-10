@@ -29,7 +29,7 @@ function disableArrowKeys() {
 };
 
 function renderOverlay() {
-  
+
 }
 
 $overlay.on({
@@ -51,10 +51,10 @@ $overlay.on({
         //pop off $topOfStack and insert into keyDownStack
         //remove overlay
         //set overlay on current $topOfStack
-
-      
-
-      console.log("TEST");
+      console.log("before: ", elementsStack);
+      keyDownStack.push(elementsStack.shift());
+      console.log("after: ", elementsStack);
+      console.log(keyDownStack);
     } else if (event.keyCode === arrowDown) {
       //go down DOM tree
         //pop keyDownStack and insert into elementsStack; update current $topOfStack
@@ -95,12 +95,10 @@ chrome.runtime.onMessage.addListener(
           $topOfStack = $(elementsStack[0]);
         }
 
-
         //set overlay under body and find the position of the $topOfStack
         // console.log($(topOfStack));
 
-
-        $('body').before($overlay);
+        $('body').append($overlay);
 
         offset = $topOfStack.offset();
         //maybe use a combination of position and offset to get the exact position
