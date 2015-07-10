@@ -59,10 +59,9 @@ chrome.runtime.onMessage.addListener(
         $('body').before($overlay);
 
         offset = $topOfStack.offset();
-        //get margins by outerHeight and outerWidth and subtract/add appropriately
         //maybe use a combination of position and offset to get the exact position
-        divHeight = $topOfStack.parent().innerHeight();
-        divWidth = $topOfStack.parent().innerWidth();
+        divHeight = $topOfStack.innerHeight();
+        divWidth = $topOfStack.innerWidth();
         $overlay.css({
           width: divWidth,
           height: divHeight,
