@@ -7,10 +7,6 @@
 //for overlay, in case I want to try the tooltip. Needs bootstrap.
 //data-toggle="tooltip" title="TESTDIV"
 
-
-var divHeight;
-var divWidth;
-
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 
@@ -45,7 +41,9 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if( request.message === "clicked_browser_action" ) {
       alert("Ad Replacer is active.");
-
+      var divHeight;
+      var divWidth;
+      var offset;
       var overlayDimensions;
 
       console.log("Content.js is running!");
@@ -55,7 +53,7 @@ chrome.runtime.onMessage.addListener(
       //debugging purposes, removes all hrefs from anchor
       $('a').removeAttr('href');
 
-      $('div').not('body, html, .inspectOverlay, .overlayDimensions').mousemove(function(event) {
+      $('div').not('body, html').mousemove(function(event) {
         event.stopPropagation();
         // $('[data-toggle="tooltip"]').tooltip();
 
@@ -75,20 +73,26 @@ chrome.runtime.onMessage.addListener(
 
         //set overlay on the top of stack
         // console.log($(topOfStack));
-        $topOfStack.before($overlay);
-        divHeight = $topOfStack.parent().height();
-        divWidth = $topOfStack.parent().width();
+
+
+        $('body').before($overlay);
+
+        offset = $topOfStack.offset();
+        //get margins by outerHeight and outerWidth and subtract/add appropriately
+        //maybe use a combination of position and offset to get the exact position
+        divHeight = $topOfStack.parent().innerHeight();
+        divWidth = $topOfStack.parent().innerWidth();
         $overlay.css({
           width: divWidth,
-          height: divHeight
+          height: divHeight,
+          top: offset.top,
+          bottom: offset.bottom,
+          left: offset.left,
+          right: offset.right
         });
 
         $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
-        $('.overlayDimensions').css({
-          visibility: "visible",
-          "line-height": "normal",
-          "font-size": "12px"
-        });
+
         console.log("stack:", elementsStack);
         console.log("element: ", $topOfStack);
         console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
