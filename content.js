@@ -10,28 +10,9 @@
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 
-function includesIframe(collection) {
-  for (var i = 0; i < collection.length; i++) {
-    if ($(collection[i]).is('iframe')) {
-      return true;
-    };
-  }
-  return false;
-}
-
 $overlay.on('click', function(event) {
   $('*').off('mousemove');
-  // console.log($(this).siblings());
-  // if (includesIframe($(this).siblings())) {
-  //   $(this).parent().children('iframe').remove();
-  // }
-  // debugger;
 
-  // $overlay.html('<span style="background-color: black; color: white">' + $overlay.children().first().html() + '</span>');
-  // $overlay.children().first().css({
-  //   width: "20px",
-  //   height: "10px"
-  // })
   event.stopPropagation();
   event.preventDefault();
   console.log('clicked');
@@ -71,7 +52,7 @@ chrome.runtime.onMessage.addListener(
         }
 
 
-        //set overlay on the top of stack
+        //set overlay under body and find the position of the $topOfStack
         // console.log($(topOfStack));
 
 
