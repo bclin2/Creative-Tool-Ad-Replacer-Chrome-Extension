@@ -29,7 +29,26 @@ function disableArrowKeys() {
 };
 
 function renderOverlay() {
+  $('body').append($overlay);
 
+  offset = $topOfStack.offset();
+  //maybe use a combination of position and offset to get the exact position
+  divHeight = $topOfStack.innerHeight();
+  divWidth = $topOfStack.innerWidth();
+  $overlay.css({
+    width: divWidth,
+    height: divHeight,
+    top: offset.top,
+    bottom: offset.bottom,
+    left: offset.left,
+    right: offset.right
+  });
+
+  $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
+}
+
+function removeOverlay() {
+  $('.inspectOverlay').remove();
 }
 
 $overlay.on({
@@ -45,19 +64,37 @@ $overlay.on({
     console.log('clicked');
   }, 
   'keydown': function(event) {
+    $('*').off('mousemove');
+
     //capture keydowns
     if (event.keyCode === arrowUp) {
       //go up DOM tree
         //pop off $topOfStack and insert into keyDownStack
-        //remove overlay
-        //set overlay on current $topOfStack
       console.log("before: ", elementsStack);
-      keyDownStack.push(elementsStack.shift());
+
+      var pendingTopOfStack = elementsStack.shift();
+
+      if ($(pendingTopOfStack).is('a') || $(pendingTopOfStack).is('.inspectOverlay')) {
+        pendingTopOfStack = elementsStack.shift();
+      }
+
+      keyDownStack.push(pendingTopOfStack);
+      $topOfStack = $(elementsStack[0]);
       console.log("after: ", elementsStack);
       console.log(keyDownStack);
+      //remove overlay
+      // debugger;
+      removeOverlay();
+      //set overlay on current $topOfStack
+      renderOverlay();
+      $('.inspectOverlay').focus();
     } else if (event.keyCode === arrowDown) {
       //go down DOM tree
         //pop keyDownStack and insert into elementsStack; update current $topOfStack
+      // console.log("before: ", elementsStack);
+      elementsStack.unshift(keyDownStack.pop());
+      // console.log("after: ", elementsStack);
+      // console.log(keyDownStack);
         //remove current overlay
         //set overlay on current $topOfStack
     }
@@ -98,22 +135,7 @@ chrome.runtime.onMessage.addListener(
         //set overlay under body and find the position of the $topOfStack
         // console.log($(topOfStack));
 
-        $('body').append($overlay);
-
-        offset = $topOfStack.offset();
-        //maybe use a combination of position and offset to get the exact position
-        divHeight = $topOfStack.innerHeight();
-        divWidth = $topOfStack.innerWidth();
-        $overlay.css({
-          width: divWidth,
-          height: divHeight,
-          top: offset.top,
-          bottom: offset.bottom,
-          left: offset.left,
-          right: offset.right
-        });
-
-        $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
+        renderOverlay();
 
         console.log("stack:", elementsStack);
         console.log("element: ", $topOfStack);
