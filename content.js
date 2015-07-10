@@ -9,13 +9,36 @@
 
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
+var $topOfStack;
+var elementsStack;
 
-$overlay.on('click', function(event) {
-  $('*').off('mousemove');
+function disableArrowKeys() {
+  window.addEventListener("keydown", function(e) {
+      // arrow keys
+      if ([38, 40].indexOf(e.keyCode) > -1) {
+          e.preventDefault();
+      }
+  }, false);
+};
 
-  event.stopPropagation();
-  event.preventDefault();
-  console.log('clicked');
+$overlay.on({
+  'click': function(event) {
+    $('*').off('mousemove');
+    event.stopPropagation();
+    event.preventDefault();
+    //Set focus on overlay so keydowns can be captured
+    $(this).attr('tabindex', '0');
+    $(this).focus();
+    //disable up and down keydowns
+    disableArrowKeys();
+    console.log('clicked');
+  }, 
+  'keydown': function(event) {
+    //capture keydowns
+    if (event.keyCode === 38 || event.keyCode === 40) {
+      console.log("TEST");
+    }
+  }
 });
 
 chrome.runtime.onMessage.addListener(
@@ -43,10 +66,10 @@ chrome.runtime.onMessage.addListener(
         var mouseCoordinateX = event.pageX - window.pageXOffset;
         var mouseCoordinateY = event.pageY - window.pageYOffset;
         //get elements on point from coordinates, this provides me the stack
-        var elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
+        elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
 
         if ($(elementsStack[0]).is('.inspectOverlay')) {
-          var $topOfStack = $(elementsStack[1]);
+          $topOfStack = $(elementsStack[1]);
         } else {
           $topOfStack = $(elementsStack[0]);
         }
