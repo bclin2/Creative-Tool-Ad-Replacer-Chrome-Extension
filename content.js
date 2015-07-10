@@ -51,7 +51,7 @@ function removeOverlay() {
   $('.inspectOverlay').remove();
 }
 
-$overlay.on({
+$('body').on({
   'click': function(event) {
     $('*').off('mousemove');
     event.stopPropagation();
@@ -99,7 +99,7 @@ $overlay.on({
         //set overlay on current $topOfStack
     }
   }
-});
+}, '.inspectOverlay');
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
