@@ -8,14 +8,34 @@
 //data-toggle="tooltip" title="TESTDIV"
 
 
-var selectedElement = [];
+var divHeight;
+var divWidth;
 
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
-var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 99999999; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
+var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
+
+function includesIframe(collection) {
+  for (var i = 0; i < collection.length; i++) {
+    if ($(collection[i]).is('iframe')) {
+      return true;
+    };
+  }
+  return false;
+}
 
 $overlay.on('click', function(event) {
   $('*').off('mousemove');
+  // console.log($(this).siblings());
+  // if (includesIframe($(this).siblings())) {
+  //   $(this).parent().children('iframe').remove();
+  // }
+  // debugger;
 
+  // $overlay.html('<span style="background-color: black; color: white">' + $overlay.children().first().html() + '</span>');
+  // $overlay.children().first().css({
+  //   width: "20px",
+  //   height: "10px"
+  // })
   event.stopPropagation();
   event.preventDefault();
   console.log('clicked');
@@ -25,10 +45,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if( request.message === "clicked_browser_action" ) {
       alert("Ad Replacer is active.");
-      var divHeight;
-      var divWidth;
-      var $iFrameParentDiv;
-      var containsiFrame = false;
+
       var overlayDimensions;
 
       console.log("Content.js is running!");
@@ -43,16 +60,19 @@ chrome.runtime.onMessage.addListener(
         // $('[data-toggle="tooltip"]').tooltip();
 
         //get coordinates
-        var x = event.pageX - window.pageXOffset;
-        var y = event.pageY - window.pageYOffset;
+        //subtracted offset to fix scrolling issue
+        var mouseCoordinateX = event.pageX - window.pageXOffset;
+        var mouseCoordinateY = event.pageY - window.pageYOffset;
         //get elements on point from coordinates, this provides me the stack
-        var elementsStack = document.elementsFromPoint(x, y);
+        var elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
 
         if ($(elementsStack[0]).is('.inspectOverlay')) {
           var $topOfStack = $(elementsStack[1]);
         } else {
           $topOfStack = $(elementsStack[0]);
         }
+
+
         //set overlay on the top of stack
         // console.log($(topOfStack));
         $topOfStack.before($overlay);
@@ -62,10 +82,16 @@ chrome.runtime.onMessage.addListener(
           width: divWidth,
           height: divHeight
         });
-        $overlay.html('<span style="background-color: black; color: white">' + divWidth + 'X' + divHeight + '</span>');
+
+        $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
+        $('.overlayDimensions').css({
+          visibility: "visible",
+          "line-height": "normal",
+          "font-size": "12px"
+        });
         console.log("stack:", elementsStack);
         console.log("element: ", $topOfStack);
-        console.log("x:", x, "y:", y);
+        console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
 
         //remove overlay on everything else
       })
