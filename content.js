@@ -7,11 +7,8 @@
 //for overlay, in case I want to try the tooltip. Needs bootstrap.
 //data-toggle="tooltip" title="TESTDIV"
 
-
-var selectedElement = [];
-
 var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
-var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 99999999; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
+var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 
 $overlay.on('click', function(event) {
   $('*').off('mousemove');
@@ -27,8 +24,7 @@ chrome.runtime.onMessage.addListener(
       alert("Ad Replacer is active.");
       var divHeight;
       var divWidth;
-      var $iFrameParentDiv;
-      var containsiFrame = false;
+      var offset;
       var overlayDimensions;
 
       console.log("Content.js is running!");
@@ -38,34 +34,48 @@ chrome.runtime.onMessage.addListener(
       //debugging purposes, removes all hrefs from anchor
       $('a').removeAttr('href');
 
-      $('div').not('body, html, .inspectOverlay, .overlayDimensions').mousemove(function(event) {
+      $('div').not('body, html').mousemove(function(event) {
         event.stopPropagation();
         // $('[data-toggle="tooltip"]').tooltip();
 
         //get coordinates
-        var x = event.pageX - window.pageXOffset;
-        var y = event.pageY - window.pageYOffset;
+        //subtracted offset to fix scrolling issue
+        var mouseCoordinateX = event.pageX - window.pageXOffset;
+        var mouseCoordinateY = event.pageY - window.pageYOffset;
         //get elements on point from coordinates, this provides me the stack
-        var elementsStack = document.elementsFromPoint(x, y);
+        var elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
 
         if ($(elementsStack[0]).is('.inspectOverlay')) {
           var $topOfStack = $(elementsStack[1]);
         } else {
           $topOfStack = $(elementsStack[0]);
         }
-        //set overlay on the top of stack
+
+
+        //set overlay under body and find the position of the $topOfStack
         // console.log($(topOfStack));
-        $topOfStack.before($overlay);
-        divHeight = $topOfStack.parent().height();
-        divWidth = $topOfStack.parent().width();
+
+
+        $('body').before($overlay);
+
+        offset = $topOfStack.offset();
+        //maybe use a combination of position and offset to get the exact position
+        divHeight = $topOfStack.innerHeight();
+        divWidth = $topOfStack.innerWidth();
         $overlay.css({
           width: divWidth,
-          height: divHeight
+          height: divHeight,
+          top: offset.top,
+          bottom: offset.bottom,
+          left: offset.left,
+          right: offset.right
         });
-        $overlay.html('<span style="background-color: black; color: white">' + divWidth + 'X' + divHeight + '</span>');
+
+        $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
+
         console.log("stack:", elementsStack);
         console.log("element: ", $topOfStack);
-        console.log("x:", x, "y:", y);
+        console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
 
         //remove overlay on everything else
       })
