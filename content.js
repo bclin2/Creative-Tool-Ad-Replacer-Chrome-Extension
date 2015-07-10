@@ -11,15 +11,26 @@ var $overlay = $('<div class="inspectOverlay" style="position: absolute; backgro
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 var $topOfStack;
 var elementsStack;
+var keyDownStack = [];
+var arrowUp = 38; 
+var arrowDown = 40;
+var divHeight;
+var divWidth;
+var offset;
+var overlayDimensions;
 
 function disableArrowKeys() {
   window.addEventListener("keydown", function(e) {
       // arrow keys
-      if ([38, 40].indexOf(e.keyCode) > -1) {
+      if ([arrowUp, arrowDown].indexOf(e.keyCode) > -1) {
           e.preventDefault();
       }
   }, false);
 };
+
+function renderOverlay() {
+  
+}
 
 $overlay.on({
   'click': function(event) {
@@ -35,8 +46,20 @@ $overlay.on({
   }, 
   'keydown': function(event) {
     //capture keydowns
-    if (event.keyCode === 38 || event.keyCode === 40) {
+    if (event.keyCode === arrowUp) {
+      //go up DOM tree
+        //pop off $topOfStack and insert into keyDownStack
+        //remove overlay
+        //set overlay on current $topOfStack
+
+      
+
       console.log("TEST");
+    } else if (event.keyCode === arrowDown) {
+      //go down DOM tree
+        //pop keyDownStack and insert into elementsStack; update current $topOfStack
+        //remove current overlay
+        //set overlay on current $topOfStack
     }
   }
 });
@@ -44,11 +67,9 @@ $overlay.on({
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if( request.message === "clicked_browser_action" ) {
-      alert("Ad Replacer is active.");
-      var divHeight;
-      var divWidth;
-      var offset;
-      var overlayDimensions;
+      alert("Creative Tool is active.");
+      //resets keyDownStack so it won't overflow to the next session
+      keyDownStack = [];
 
       console.log("Content.js is running!");
 
