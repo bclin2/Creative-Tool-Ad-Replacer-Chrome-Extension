@@ -13,7 +13,6 @@ var $topOfStack;
 var elementsStack;
 var keyDownStack = [];
 var arrowUp = 38; 
-var arrowDown = 40;
 var divHeight;
 var divWidth;
 var offset;
@@ -22,7 +21,7 @@ var overlayDimensions;
 function disableArrowKeys() {
   window.addEventListener("keydown", function(e) {
       // arrow keys
-      if ([arrowUp, arrowDown].indexOf(e.keyCode) > -1) {
+      if ([arrowUp].indexOf(e.keyCode) > -1) {
           e.preventDefault();
       }
   }, false);
