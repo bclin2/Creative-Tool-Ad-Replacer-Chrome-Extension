@@ -103,35 +103,6 @@ $('body').on({
       renderOverlay();
 
       $('.inspectOverlay').focus();
-    } else if (event.keyCode === arrowDown) {
-      console.log("ARROW DOWN!!!!");
-
-      //go down DOM tree
-        //pop keyDownStack and insert into elementsStack; update current $topOfStack
-      console.log("before: ", elementsStack);
-
-      pendingTopOfStack = keyDownStack.pop();
-
-      if (!(pendingTopOfStack === undefined)) {
-        elementsStack.unshift(pendingTopOfStack);
-      }
-
-      $topOfStack = $(elementsStack[0]);
-      console.log("after: ", elementsStack);
-      console.log("keyDownStack: ", keyDownStack);
-      console.log("TopOfStack: ", $topOfStack);
-
-      //stop undefined from being pushed to either stack
-      //REAL problem is why $topOfStack sometimes reads as 0x0
-        //probably because it's supposed to inherit from its parents
-          //when I move it to another stack, it loses its parent's attributes?
-
-      removeOverlay();
-      renderOverlay();
-
-      $('.inspectOverlay').focus();
-
-      //capture errors where no $topOfStack exists, rescue them and refocus the previous .inspectOverlay
     }
   }
 }, '.inspectOverlay');
