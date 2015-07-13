@@ -7,7 +7,6 @@ var $overlay = $('<div class="inspectOverlay" style="position: absolute; backgro
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 var $topOfStack;
 var elementsStack;
-var keyDownStack = [];
 var arrowUp = 38; 
 var divHeight;
 var divWidth;
@@ -31,6 +30,7 @@ function renderOverlay() {
   if (divHeight === 0 || divWidth === 0) {
     return;
   }
+  
   $overlay.css({
     width: divWidth,
     height: divHeight,
@@ -71,9 +71,6 @@ $('body').on({
         pendingTopOfStack = elementsStack.shift();
       }
 
-      if (!(pendingTopOfStack === undefined)) {
-        keyDownStack.push(pendingTopOfStack);
-      }
       $topOfStack = $(elementsStack[0]);
 
       removeOverlay();
@@ -86,10 +83,8 @@ $('body').on({
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if( request.message === "clicked_browser_action" ) {
+    if ( request.message === "clicked_browser_action" ) {
       alert("Creative Tool is active.");
-      //resets keyDownStack so it won't overflow to the next session
-      keyDownStack = [];
 
       console.log("Content.js is running!");
 
@@ -120,8 +115,7 @@ chrome.runtime.onMessage.addListener(
         console.log("element: ", $topOfStack);
         console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
 
-      })
-
+      });
     }
   }
 );
