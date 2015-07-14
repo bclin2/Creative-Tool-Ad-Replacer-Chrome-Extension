@@ -3,7 +3,7 @@
 // HAVING default_popup ENABLED IN THE manifest.json causes all other js to not run
 // capturing click events on an iframe from a different domain is impossible
 
-var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
+var $overlay = $('<div class="inspectOverlay" id="drop" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 var $topOfStack;
 var elementsStack;
@@ -12,6 +12,9 @@ var divHeight;
 var divWidth;
 var offset;
 var overlayDimensions;
+
+// File Upload
+var drop;
 
 function disableArrowKeys() {
   window.addEventListener("keydown", function(e) {
@@ -57,7 +60,10 @@ $('body').on({
     $(this).focus();
     //disable up keydowns
     disableArrowKeys();
-    console.log('clicked');
+    // console.log('clicked');
+
+    //Initialize drop
+    drop = $(this);
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
@@ -80,6 +86,11 @@ $('body').on({
     }
   }
 }, '.inspectOverlay');
+
+
+
+
+
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
