@@ -15,6 +15,7 @@ var overlayDimensions;
 
 // File Upload
 var drop;
+var $replacerContent;
 
 // File Upload Handlers
 function cancelDefaultDrop(event) {
@@ -37,24 +38,65 @@ function bindDragEvents() {
     for (var index = 0; index < files.length; index++) {
       var file = files[index];
       var reader = new FileReader();
-      testFile = file;
-      reader.readAsDataURL(file);
 
-      console.log("Stuff is happening");
-      console.log(reader);
-      console.log(file);
+      //Determine MIME type here
+      if (file.type.includes("image")) {
+        reader.readAsDataURL(file);      
+      } else if (file.type.includes("text")) {
+        reader.readAsText(file);
+      } else {
+        alert("File Type not recognized");
+      }
+
+      var $originalContentParent = $($topOfStack.parent());
+      $replacerContent = $('<div class="replacerContent"></div>'); 
+
       reader.addEventListener('loadend', function(event) {
-        var binary = this.result;
-        console.log(binary);
-        console.log(this);
-        console.log("FILE: ", file);
-        console.log(event);
+
+        // console.log("reader result: ", this.result);
+        // console.log("FILE: ", file, "type: ", file.type);
+
+        var readerData = this.result;
+
+        if (file.type.includes("image")) {
+          var bin = readerData;
+          var img = document.createElement('img');
+          img.file = file;
+          img.src = bin;
+          replaceOriginalContent($replacerContent, img);
+          $originalContentParent.append($replacerContent);
+          removeOverlay();
+        } else if (file.type.includes("text")) {
+          var textContents = readerData;
+          replaceOriginalContent($replacerContent, textContents);
+          $originalContentParent.append($replacerContent);
+
+          // $.parseHTML(textContents, '.replacerContent', true);
+
+          removeOverlay();
+        }
+
+        //replace original content
+          //replacerContent has to have same properties(width/height) of original content
+          //assumes original content would have the right pixel size
+          //check if file is an image or an html/txt file. 
+            //if image, create a div and inject image into div
+            //if file, parse and inject html5 into replacer content
+        //remove overlay
       });
     }
     return false;
   });
 };
 
+function replaceOriginalContent($content, data) {
+  $topOfStack.remove();
+  $content.html(data);
+  $content.css({
+    width: divWidth,
+    height: divHeight
+  });
+}
 
 // Overlay
 function disableArrowKeys() {
@@ -100,14 +142,13 @@ $('body').on({
     //Set focus on overlay so keydowns can be captured
     $(this).attr('tabindex', '0');
     $(this).focus();
-    //disable up keydowns
+    //disable up keydowns(ex: arrowUp)
     disableArrowKeys();
-    // console.log('clicked');
 
     //Initialize drop
     drop = document.getElementById('drop');
     bindDragEvents();
-    // drop = $(this);
+    console.log($topOfStack);
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
@@ -138,7 +179,8 @@ chrome.runtime.onMessage.addListener(
 
       console.log("Content.js is running!");
 
-      $('body').css('cursor', 'crosshair');
+      // Don't need another visual aid to tell the extension is active. The yellow overlays are enough
+      // $('body').css('cursor', 'crosshair');
 
       //debugging purposes, removes all hrefs from anchors
       $('a').removeAttr('href');
@@ -160,10 +202,6 @@ chrome.runtime.onMessage.addListener(
         }
 
         renderOverlay();
-
-        // console.log("stack:", elementsStack);
-        // console.log("element: ", $topOfStack);
-        // console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
 
       });
     }
