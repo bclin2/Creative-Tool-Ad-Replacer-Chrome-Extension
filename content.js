@@ -16,6 +16,47 @@ var overlayDimensions;
 // File Upload
 var drop;
 
+// File Upload Handlers
+function cancelDefaultDrop(event) {
+  if (event.preventDefault) { 
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  return false;
+}
+
+function bindDragEvents() {
+  drop.addEventListener('dragover', cancelDefaultDrop);
+  drop.addEventListener('dragenter', cancelDefaultDrop);
+
+  drop.addEventListener('drop', function(event) {
+    event.preventDefault();
+    var data = event.dataTransfer;
+    var files = data.files;
+
+    for (var index = 0; index < files.length; index++) {
+      var file = files[index];
+      var reader = new FileReader();
+      testFile = file;
+      reader.readAsDataURL(file);
+
+      console.log("Stuff is happening");
+      console.log(reader);
+      console.log(file);
+      reader.addEventListener('loadend', function(event) {
+        var binary = this.result;
+        console.log(binary);
+        console.log(this);
+        console.log("FILE: ", file);
+        console.log(event);
+      });
+    }
+    return false;
+  });
+};
+
+
+// Overlay
 function disableArrowKeys() {
   window.addEventListener("keydown", function(e) {
     if ([arrowUp].indexOf(e.keyCode) > -1) {
@@ -50,6 +91,7 @@ function removeOverlay() {
   $('.inspectOverlay').remove();
 }
 
+// Overlay Handlers
 $('body').on({
   'click': function(event) {
     $('*').off('mousemove');
@@ -63,7 +105,9 @@ $('body').on({
     // console.log('clicked');
 
     //Initialize drop
-    drop = $(this);
+    drop = document.getElementById('drop');
+    bindDragEvents();
+    // drop = $(this);
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
@@ -86,11 +130,6 @@ $('body').on({
     }
   }
 }, '.inspectOverlay');
-
-
-
-
-
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -122,9 +161,9 @@ chrome.runtime.onMessage.addListener(
 
         renderOverlay();
 
-        console.log("stack:", elementsStack);
-        console.log("element: ", $topOfStack);
-        console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
+        // console.log("stack:", elementsStack);
+        // console.log("element: ", $topOfStack);
+        // console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
 
       });
     }
