@@ -53,36 +53,24 @@ function bindDragEvents() {
 
       reader.addEventListener('loadend', function(event) {
 
-        // console.log("reader result: ", this.result);
-        // console.log("FILE: ", file, "type: ", file.type);
-
         var readerData = this.result;
 
         if (file.type.includes("image")) {
-          var bin = readerData;
           var img = document.createElement('img');
           img.file = file;
-          img.src = bin;
+          img.src = readerData;
           replaceOriginalContent($replacerContent, img);
           $originalContentParent.append($replacerContent);
           removeOverlay();
+
         } else if (file.type.includes("text")) {
-          var textContents = readerData;
-          replaceOriginalContent($replacerContent, textContents);
+          replaceOriginalContent($replacerContent, readerData);
           $originalContentParent.append($replacerContent);
 
-          // $.parseHTML(textContents, '.replacerContent', true);
-
           removeOverlay();
-        }
+          $.parseHTML(readerData, '.replacerContent', true); 
 
-        //replace original content
-          //replacerContent has to have same properties(width/height) of original content
-          //assumes original content would have the right pixel size
-          //check if file is an image or an html/txt file. 
-            //if image, create a div and inject image into div
-            //if file, parse and inject html5 into replacer content
-        //remove overlay
+        }
       });
     }
     return false;
@@ -96,7 +84,7 @@ function replaceOriginalContent($content, data) {
     width: divWidth,
     height: divHeight
   });
-}
+};
 
 // Overlay
 function disableArrowKeys() {
@@ -127,11 +115,11 @@ function renderOverlay() {
   });
 
   $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
-}
+};
 
 function removeOverlay() {
   $('.inspectOverlay').remove();
-}
+};
 
 // Overlay Handlers
 $('body').on({
@@ -148,7 +136,6 @@ $('body').on({
     //Initialize drop
     drop = document.getElementById('drop');
     bindDragEvents();
-    console.log($topOfStack);
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
@@ -179,11 +166,13 @@ chrome.runtime.onMessage.addListener(
 
       console.log("Content.js is running!");
 
-      // Don't need another visual aid to tell the extension is active. The yellow overlays are enough
-      // $('body').css('cursor', 'crosshair');
-
       //debugging purposes, removes all hrefs from anchors
       $('a').removeAttr('href');
+
+      //prevent drag from redirecting
+      $('body').bind('drag', function(event) {
+        event.preventDefault();
+      })
 
       $('div').not('body, html').mousemove(function(event) {
         event.stopPropagation();
