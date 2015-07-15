@@ -12,6 +12,10 @@ var divHeight;
 var divWidth;
 var offset;
 var overlayDimensions;
+var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
+var $pasteOverlay = $('<button class="pasteOverlay" style="position: absolute; right: 18px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
+
+var pasteModal = 
 
 // File Upload
 var drop;
@@ -92,7 +96,7 @@ function replaceOriginalContent($content, data, $originalContentParent) {
   });
   //turn scrolling off?
   $content.attr('scrolling', 'no');
-
+  // debugger;
   $originalContentParent.append($content);
   removeOverlay();
 };
@@ -124,7 +128,7 @@ function renderOverlay() {
   bodyOffsetLeft = $('body').offset().left;
   bodyOffsetTop = $('body').offset().top;
 
-  console.log("body-top: ", bodyOffsetTop, "body-left: ", bodyOffsetLeft);
+  // console.log("stack: ", elementsStack, "top: ", $topOfStack);
 
   $overlay.css({
     width: divWidth,
@@ -133,11 +137,32 @@ function renderOverlay() {
     left: offset.left - bodyOffsetLeft
   });
 
-  $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
+  var dimensions = '<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>';
+  $overlay.html(dimensions);
+
 };
 
 function removeOverlay() {
   $('.inspectOverlay').remove();
+};
+
+function closeOverlayEventBinder() {
+  $('.closeOverlay').on({
+    'click': function(event) {
+      removeOverlay();
+    }
+  });
+};
+
+function injectModal() {
+  //injects modal divs into page so they can be called
+  //inject only once, check if it's been injected already
+  //inject on browser action
+
+  if (!($('.pasteModal'))) {
+    //inject into body
+    $('body').append(pasteModal);
+  }
 };
 
 // Overlay Handlers
@@ -152,9 +177,19 @@ $('body').on({
     //disable up keydowns(ex: arrowUp)
     disableArrowKeys();
 
+    //Append Close Option
+    $overlay.append($closeOverlay);
+    closeOverlayEventBinder();
+
+    //Append Past Option
+    $overlay.append($pasteOverlay);
+    //if I use completely bootstrap, $pasteOverlay must be a button and I can just use classes to call the Modal
+
     //Initialize drop
     drop = document.getElementById('drop');
     bindDragEvents();
+
+
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
