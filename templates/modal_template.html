@@ -1,17 +1,18 @@
 <!-- Modal -->
-<div id="pasteModal" class="modal fade" role="dialog">
+<div id="pasteModal" class="modal fade" role="dialog" style="z-index: 100000003">
   <div class="modal-dialog">
 
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Modal Header</h4>
+        <h4 class="modal-title">Paste your tags here and click submit to inject them into the highlighted area on the page.</h4>
       </div>
-      <div class="modal-body">
-        <p>Some text in the modal.</p>
+      <div class="modal-body" style="max-height: 1000px">
+        <textarea style="width: 100%" rows="15"></textarea>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Submit</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
