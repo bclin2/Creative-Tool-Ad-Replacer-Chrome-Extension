@@ -48,26 +48,29 @@ function bindDragEvents() {
         alert("File Type not recognized");
       }
 
-      var $originalContentParent = $($topOfStack.parent());
-      $replacerContent = $('<div class="replacerContent"></div>'); 
+      // var $originalContentParent = $($topOfStack.parent());
+      $replacerContent = $('<iframe class="replacerContent"></iframe>'); //REPLACE WITH AN IFRAME
 
       reader.addEventListener('loadend', function(event) {
 
         var readerData = this.result;
+        // debugger;
+        var $originalContentParent = $($topOfStack.parent());
+        var originalBackgroundColor = $originalContentParent.css('background-color');
 
         if (file.type.includes("image")) {
           var img = document.createElement('img');
           img.file = file;
           img.src = readerData;
-          replaceOriginalContent($replacerContent, img);
-          $originalContentParent.append($replacerContent);
-          removeOverlay();
+          replaceOriginalContent($replacerContent, img, $originalContentParent);
+          $replacerContent.contents().find("body").html(img);
+          $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
 
         } else if (file.type.includes("text")) {
           replaceOriginalContent($replacerContent, readerData);
-          $originalContentParent.append($replacerContent);
-
-          removeOverlay();
+          $replacerContent.contents().find("body").html(readerData);
+          $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
+          //still grey
           $.parseHTML(readerData, '.replacerContent', true); 
 
         }
@@ -77,13 +80,21 @@ function bindDragEvents() {
   });
 };
 
-function replaceOriginalContent($content, data) {
+function replaceOriginalContent($content, data, $originalContentParent) {
+  // debugger;
   $topOfStack.remove();
-  $content.html(data);
+  //on refactor, put bottom line back in but with a callback function
+  // $content.contents().find("body").html(data);
   $content.css({
     width: divWidth,
-    height: divHeight
+    height: divHeight,
+    border: "none"
   });
+  //turn scrolling off?
+  $content.attr('scrolling', 'no');
+
+  $originalContentParent.append($content);
+  removeOverlay();
 };
 
 // Overlay
@@ -105,13 +116,21 @@ function renderOverlay() {
     return;
   }
   
+  //offset may be off because it doesn't take into account of body. 
+  //jquery .offset() doesn't take into account margin, padding, border, and offset of body
+
+  // bodyOffsetLeft = +$('body').css('margin-left')[0] + +$('body').css('border-left')[0] + +$('body').css('padding-left')[0] + $('body').offset().left;
+  // bodyOffsetTop = +$('body').css('margin-top')[0] + +$('body').css('border-top')[0] + +$('body').css('padding-top')[0] + $('body').offset().top;
+  bodyOffsetLeft = $('body').offset().left;
+  bodyOffsetTop = $('body').offset().top;
+
+  console.log("body-top: ", bodyOffsetTop, "body-left: ", bodyOffsetLeft);
+
   $overlay.css({
     width: divWidth,
     height: divHeight,
-    top: offset.top,
-    bottom: offset.bottom,
-    left: offset.left,
-    right: offset.right
+    top: offset.top - bodyOffsetTop,
+    left: offset.left - bodyOffsetLeft
   });
 
   $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
@@ -162,7 +181,6 @@ $('body').on({
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if ( request.message === "clicked_browser_action" ) {
-      alert("Creative Tool is active.");
 
       console.log("Content.js is running!");
 
