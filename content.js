@@ -15,7 +15,7 @@ var overlayDimensions;
 var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
 var $pasteOverlay = $('<button class="pasteOverlay" style="position: absolute; right: 18px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
 
-var pasteModal = 
+
 
 // File Upload
 var drop;
@@ -71,7 +71,7 @@ function bindDragEvents() {
           $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
 
         } else if (file.type.includes("text")) {
-          replaceOriginalContent($replacerContent, readerData);
+          replaceOriginalContent($replacerContent, readerData, $originalContentParent);
           $replacerContent.contents().find("body").html(readerData);
           $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
           //still grey
