@@ -13,7 +13,7 @@ var divWidth;
 var offset;
 var overlayDimensions;
 var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
-var $pasteOverlay = $('<button class="pasteOverlay" style="position: absolute; right: 18px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
+var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 18px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
 
 
 
@@ -67,13 +67,21 @@ function bindDragEvents() {
           img.file = file;
           img.src = readerData;
           replaceOriginalContent($replacerContent, img, $originalContentParent);
+          $replacerContent.contents().find("body").css({
+            padding: 0,
+            margin: 0,
+            border: 0
+          });
           $replacerContent.contents().find("body").html(img);
-          $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
 
         } else if (file.type.includes("text")) {
           replaceOriginalContent($replacerContent, readerData, $originalContentParent);
+          $replacerContent.contents().find("body").css({
+            padding: 0,
+            margin: 0,
+            border: 0
+          });
           $replacerContent.contents().find("body").html(readerData);
-          $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
           //still grey
           $.parseHTML(readerData, '.replacerContent', true); 
 
@@ -95,7 +103,7 @@ function replaceOriginalContent($content, data, $originalContentParent) {
     border: "none"
   });
   //turn scrolling off?
-  $content.attr('scrolling', 'no');
+  // $content.attr('scrolling', 'no');
   // debugger;
   $originalContentParent.append($content);
   removeOverlay();
