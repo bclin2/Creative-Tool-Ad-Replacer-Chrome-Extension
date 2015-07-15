@@ -13,8 +13,8 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": ["bootstrap.min.css", "bootstrap-theme.min.css", "jquery-ui.min.css", "jquery-ui.structure.min.css", "jquery-ui.theme.min.css"],
-      "js": ["jquery-2.1.4.min.js", "bootstrap.min.js", "jquery-ui.min.js", "content.js"]
+      "css": ["styles/library/bootstrap.min.css", "styles/library/bootstrap-theme.min.css", "jquery-ui.min.css", "jquery-ui.structure.min.css", "jquery-ui.theme.min.css"],
+      "js": ["js/library/jquery-2.1.4.min.js", "js/library/bootstrap.min.js", "jquery-ui.min.js", "content.js"]
     }
   ],
   "browser_action": { 
