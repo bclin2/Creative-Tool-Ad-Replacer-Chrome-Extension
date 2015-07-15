@@ -13,9 +13,14 @@ var divWidth;
 var offset;
 var overlayDimensions;
 var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
-var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 18px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
+var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
 
-
+//Get Template for Paste Modal
+var pasteModalURL = chrome.extension.getURL("templates/modal_template.html");
+var pasteModalTemplate;
+$.get(pasteModalURL, function(data) {
+  pasteModalTemplate = data;
+})
 
 // File Upload
 var drop;
@@ -162,16 +167,24 @@ function closeOverlayEventBinder() {
   });
 };
 
-function injectModal() {
+function injectPasteModal() {
   //injects modal divs into page so they can be called
   //inject only once, check if it's been injected already
   //inject on browser action
-
-  if (!($('.pasteModal'))) {
+  // debugger;
+  var pasteModalDoesNotExists = $('body').find('#pasteModal').length === 0 ? true : false;
+  if (pasteModalDoesNotExists) {
     //inject into body
-    $('body').append(pasteModal);
+    $('body').append(pasteModalTemplate);
   }
 };
+
+function pasteOverlayEventBinder() {
+  $('.pasteOverlay').on('click', function(event) {
+    console.log('render modal clicked');
+    $('#pasteModal').modal('show');
+  });
+}
 
 // Overlay Handlers
 $('body').on({
@@ -189,15 +202,14 @@ $('body').on({
     $overlay.append($closeOverlay);
     closeOverlayEventBinder();
 
-    //Append Past Option
+    //Append Paste Option
     $overlay.append($pasteOverlay);
+    pasteOverlayEventBinder();
     //if I use completely bootstrap, $pasteOverlay must be a button and I can just use classes to call the Modal
 
     //Initialize drop
     drop = document.getElementById('drop');
     bindDragEvents();
-
-
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
@@ -233,7 +245,10 @@ chrome.runtime.onMessage.addListener(
       //prevent drag from redirecting
       $('body').bind('drag', function(event) {
         event.preventDefault();
-      })
+      });
+
+      //Inject Paste Modal
+      injectPasteModal();
 
       $('div').not('body, html').mousemove(function(event) {
         event.stopPropagation();
