@@ -20,11 +20,11 @@ var pasteModalURL = chrome.extension.getURL("templates/modal_template.html");
 var pasteModalTemplate;
 $.get(pasteModalURL, function(data) {
   pasteModalTemplate = data;
-})
+});
+var pasteContentTags;
 
 // File Upload
 var drop;
-var $replacerContent;
 
 // File Upload Handlers
 function cancelDefaultDrop(event) {
@@ -57,13 +57,16 @@ function bindDragEvents() {
         alert("File Type not recognized");
       }
 
-      // var $originalContentParent = $($topOfStack.parent());
-      $replacerContent = $('<iframe class="replacerContent"></iframe>'); //REPLACE WITH AN IFRAME
 
       reader.addEventListener('loadend', function(event) {
 
         var readerData = this.result;
+        var $replacerContent = $('<iframe class="replacerContent"></iframe>');
+
         // debugger;
+        var currentReplacerContentID = generateRandomID()
+        $replacerContent.attr('id', currentReplacerContentID);
+        $replaceOriginalContent = $('#' + currentReplacerContentID);
         var $originalContentParent = $($topOfStack.parent());
         var originalBackgroundColor = $originalContentParent.css('background-color');
 
@@ -167,14 +170,10 @@ function closeOverlayEventBinder() {
   });
 };
 
+//Paste Modal functions
 function injectPasteModal() {
-  //injects modal divs into page so they can be called
-  //inject only once, check if it's been injected already
-  //inject on browser action
-  // debugger;
   var pasteModalDoesNotExists = $('body').find('#pasteModal').length === 0 ? true : false;
   if (pasteModalDoesNotExists) {
-    //inject into body
     $('body').append(pasteModalTemplate);
   }
 };
@@ -184,7 +183,19 @@ function pasteOverlayEventBinder() {
     console.log('render modal clicked');
     $('#pasteModal').modal('show');
   });
-}
+};
+
+function getPasteContent() {
+  pasteContentTags = $('.pasteContent').val();
+};
+
+function bindPasteEvent() {
+  $('.pasteSubmit').on('click', function(event) {
+    //get paste content
+    //inject that content into selected/highlighted div
+    //run any scripts that may be inside
+  });
+};
 
 // Overlay Handlers
 $('body').on({
@@ -205,7 +216,6 @@ $('body').on({
     //Append Paste Option
     $overlay.append($pasteOverlay);
     pasteOverlayEventBinder();
-    //if I use completely bootstrap, $pasteOverlay must be a button and I can just use classes to call the Modal
 
     //Initialize drop
     drop = document.getElementById('drop');
@@ -233,6 +243,11 @@ $('body').on({
   }
 }, '.inspectOverlay');
 
+//Helper Functions
+function generateRandomID() {
+  return '_' + Math.random().toString(36).substr(2, 9);
+};
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if ( request.message === "clicked_browser_action" ) {
@@ -249,6 +264,7 @@ chrome.runtime.onMessage.addListener(
 
       //Inject Paste Modal
       injectPasteModal();
+      bindPasteEvent();
 
       $('div').not('body, html').mousemove(function(event) {
         event.stopPropagation();
@@ -267,7 +283,6 @@ chrome.runtime.onMessage.addListener(
         }
 
         renderOverlay();
-
       });
     }
   }
