@@ -2,61 +2,145 @@
 // alert("Hello from the chrome extension!");
 // HAVING default_popup ENABLED IN THE manifest.json causes all other js to not run
 // capturing click events on an iframe from a different domain is impossible
-//The position
 
-//for overlay, in case I want to try the tooltip. Needs bootstrap.
-//data-toggle="tooltip" title="TESTDIV"
-
-var $overlay = $('<div class="inspectOverlay" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
+var $overlay = $('<div class="inspectOverlay" id="drop" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
 var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
 var $topOfStack;
 var elementsStack;
-var keyDownStack = [];
 var arrowUp = 38; 
-var arrowDown = 40;
 var divHeight;
 var divWidth;
 var offset;
 var overlayDimensions;
 
+// File Upload
+var drop;
+var $replacerContent;
+
+// File Upload Handlers
+function cancelDefaultDrop(event) {
+  if (event.preventDefault) { 
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  return false;
+}
+
+function bindDragEvents() {
+  drop.addEventListener('dragover', cancelDefaultDrop);
+  drop.addEventListener('dragenter', cancelDefaultDrop);
+
+  drop.addEventListener('drop', function(event) {
+    event.preventDefault();
+    var data = event.dataTransfer;
+    var files = data.files;
+
+    for (var index = 0; index < files.length; index++) {
+      var file = files[index];
+      var reader = new FileReader();
+
+      //Determine MIME type here
+      if (file.type.includes("image")) {
+        reader.readAsDataURL(file);      
+      } else if (file.type.includes("text")) {
+        reader.readAsText(file);
+      } else {
+        alert("File Type not recognized");
+      }
+
+      // var $originalContentParent = $($topOfStack.parent());
+      $replacerContent = $('<iframe class="replacerContent"></iframe>'); //REPLACE WITH AN IFRAME
+
+      reader.addEventListener('loadend', function(event) {
+
+        var readerData = this.result;
+        // debugger;
+        var $originalContentParent = $($topOfStack.parent());
+        var originalBackgroundColor = $originalContentParent.css('background-color');
+
+        if (file.type.includes("image")) {
+          var img = document.createElement('img');
+          img.file = file;
+          img.src = readerData;
+          replaceOriginalContent($replacerContent, img, $originalContentParent);
+          $replacerContent.contents().find("body").html(img);
+          $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
+
+        } else if (file.type.includes("text")) {
+          replaceOriginalContent($replacerContent, readerData);
+          $replacerContent.contents().find("body").html(readerData);
+          $replacerContent.contents().find("body").css('background-color', originalBackgroundColor);
+          //still grey
+          $.parseHTML(readerData, '.replacerContent', true); 
+
+        }
+      });
+    }
+    return false;
+  });
+};
+
+function replaceOriginalContent($content, data, $originalContentParent) {
+  // debugger;
+  $topOfStack.remove();
+  //on refactor, put bottom line back in but with a callback function
+  // $content.contents().find("body").html(data);
+  $content.css({
+    width: divWidth,
+    height: divHeight,
+    border: "none"
+  });
+  //turn scrolling off?
+  $content.attr('scrolling', 'no');
+
+  $originalContentParent.append($content);
+  removeOverlay();
+};
+
+// Overlay
 function disableArrowKeys() {
   window.addEventListener("keydown", function(e) {
-      // arrow keys
-      if ([arrowUp, arrowDown].indexOf(e.keyCode) > -1) {
-          e.preventDefault();
-      }
+    if ([arrowUp].indexOf(e.keyCode) > -1) {
+      e.preventDefault();
+    }
   }, false);
 };
 
 function renderOverlay() {
   $('body').append($overlay);
-  // debugger;
   offset = $topOfStack.offset();
-  //maybe use a combination of position and offset to get the exact position
   divHeight = $topOfStack.innerHeight();
   divWidth = $topOfStack.innerWidth();
-  //REAL problem is why $topOfStack sometimes reads as 0x0
 
   if (divHeight === 0 || divWidth === 0) {
-    debugger;
     return;
   }
+  
+  //offset may be off because it doesn't take into account of body. 
+  //jquery .offset() doesn't take into account margin, padding, border, and offset of body
+
+  // bodyOffsetLeft = +$('body').css('margin-left')[0] + +$('body').css('border-left')[0] + +$('body').css('padding-left')[0] + $('body').offset().left;
+  // bodyOffsetTop = +$('body').css('margin-top')[0] + +$('body').css('border-top')[0] + +$('body').css('padding-top')[0] + $('body').offset().top;
+  bodyOffsetLeft = $('body').offset().left;
+  bodyOffsetTop = $('body').offset().top;
+
+  console.log("body-top: ", bodyOffsetTop, "body-left: ", bodyOffsetLeft);
+
   $overlay.css({
     width: divWidth,
     height: divHeight,
-    top: offset.top,
-    bottom: offset.bottom,
-    left: offset.left,
-    right: offset.right
+    top: offset.top - bodyOffsetTop,
+    left: offset.left - bodyOffsetLeft
   });
 
   $overlay.html('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>');
-}
+};
 
 function removeOverlay() {
   $('.inspectOverlay').remove();
-}
+};
 
+// Overlay Handlers
 $('body').on({
   'click': function(event) {
     $('*').off('mousemove');
@@ -65,19 +149,18 @@ $('body').on({
     //Set focus on overlay so keydowns can be captured
     $(this).attr('tabindex', '0');
     $(this).focus();
-    //disable up and down keydowns
+    //disable up keydowns(ex: arrowUp)
     disableArrowKeys();
-    console.log('clicked');
+
+    //Initialize drop
+    drop = document.getElementById('drop');
+    bindDragEvents();
   }, 
   'keydown': function(event) {
     $('*').off('mousemove');
     var pendingTopOfStack;
     //capture keydowns
     if (event.keyCode === arrowUp) {
-      //go up DOM tree
-        //pop off $topOfStack and insert into keyDownStack
-      console.log("ARROW UP!!!!");
-      console.log("before: ", elementsStack);
 
       pendingTopOfStack = elementsStack.shift();
 
@@ -85,14 +168,8 @@ $('body').on({
         pendingTopOfStack = elementsStack.shift();
       }
 
-      if (!(pendingTopOfStack === undefined)) {
-        keyDownStack.push(pendingTopOfStack);
-      }
       $topOfStack = $(elementsStack[0]);
 
-      console.log("after: ", elementsStack);
-      console.log("keyDownStack: ", keyDownStack);
-      console.log("TopOfStack: ", $topOfStack);
       removeOverlay();
       renderOverlay();
 
@@ -103,21 +180,20 @@ $('body').on({
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if( request.message === "clicked_browser_action" ) {
-      alert("Creative Tool is active.");
-      //resets keyDownStack so it won't overflow to the next session
-      keyDownStack = [];
+    if ( request.message === "clicked_browser_action" ) {
 
       console.log("Content.js is running!");
 
-      $('body').css('cursor', 'crosshair');
-
-      //debugging purposes, removes all hrefs from anchor
+      //debugging purposes, removes all hrefs from anchors
       $('a').removeAttr('href');
+
+      //prevent drag from redirecting
+      $('body').bind('drag', function(event) {
+        event.preventDefault();
+      })
 
       $('div').not('body, html').mousemove(function(event) {
         event.stopPropagation();
-        // $('[data-toggle="tooltip"]').tooltip();
 
         //get coordinates
         //subtracted offset to fix scrolling issue
@@ -132,15 +208,9 @@ chrome.runtime.onMessage.addListener(
           $topOfStack = $(elementsStack[0]);
         }
 
-        //set overlay under body and find the position of the $topOfStack
         renderOverlay();
 
-        console.log("stack:", elementsStack);
-        console.log("element: ", $topOfStack);
-        console.log("x:", mouseCoordinateX, "y:", mouseCoordinateY);
-
-      })
-
+      });
     }
   }
 );
