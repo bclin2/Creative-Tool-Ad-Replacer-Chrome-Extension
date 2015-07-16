@@ -13,11 +13,17 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": ["bootstrap.min.css", "bootstrap-theme.min.css", "jquery-ui.min.css", "jquery-ui.structure.min.css", "jquery-ui.theme.min.css"],
-      "js": ["jquery-2.1.4.min.js", "bootstrap.min.js", "jquery-ui.min.js", "content.js"]
+      "js": ["js/library/jquery-2.1.4.min.js", "content.js"]
     }
   ],
   "browser_action": { 
-   "default_icon": "placeholder_icon.png"
+   "default_icon": "imgs/icon16.png"
+  }, 
+  "web_accessible_resources": [
+    "templates/*"
+  ],
+  "icons": {
+    "16": "imgs/icon16.png",
+    "128": "imgs/icon128.png"
   }
 }
