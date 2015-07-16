@@ -14,7 +14,7 @@ If you target a smaller element, but you want the overlay to cover a larger area
 Dragging an image file or a text file containing tags from your desktop to the overlay will replace the selected element with your image/tags. 
 
 In order to close the overlay, click on the "X" button on the top right of the overlay. 
-In order to open up the paste option, click on the "U" button on the top right of the overlay. This will open up an prompt dialog where you can paste your tags. 
+In order to open up the paste option, click on the "P" button on the top right of the overlay. This will open up an prompt dialog where you can paste your tags. 
 
 Paste any tags you have on your clipboard into the text area and click "Okay". This will replace the selected element with your tags. 
 
