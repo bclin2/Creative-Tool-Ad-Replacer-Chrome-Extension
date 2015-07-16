@@ -1,14 +1,24 @@
-# ad_modifier
-Helps users replace and modify ads on a webpage
+# Creative Tool Ad Replacer
+The purpose of this Chrome extension is to improve productivity for anyone who needs to modify elements on a web page and take screenshots of them. 
 
-# User Stories
-* User can click on an ad_div and not have an ad actually pop up 
-* User can click on an ad_div and it will show how large the current div size is
-  * Visual effect, like highlighting the current area clicked
-* User can click on an ad_div, then drag and drop ad_creative_image onto ad_div
-* User can modify the ad_creative_image to fit the div space
-  * Should the image automatically fit into the div
-  * Manual resizing using mouse drag
+# Installation
+It is currently unlisted in the Chrome Webstore; please contact me for the URL. 
+
+# How to use it
+In order to activate the tool, click on the "CT" icon on the top right of your browser once you have installed it.  
+
+When you move your mouse over an element on the webpage, the element is highlighted with a yellow overlay.  
+
+If you target a smaller element, but you want the overlay to cover a larger area, you can press the Up Arrow key. This will cause the overlay to move to the selected element's parents. 
+
+Dragging an image file or a text file containing tags from your desktop to the overlay will replace the selected element with your image/tags. 
+
+In order to close the overlay, click on the "X" button on the top right of the overlay. 
+In order to open up the paste option, click on the "U" button on the top right of the overlay. This will open up an prompt dialog where you can paste your tags. 
+
+Paste any tags you have on your clipboard into the text area and click "Okay". This will replace the selected element with your tags. 
+
+
 
 Ideas: 
 * Set flag for pausing extension
