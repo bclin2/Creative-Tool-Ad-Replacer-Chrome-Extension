@@ -4,7 +4,21 @@
 // capturing click events on an iframe from a different domain is impossible
 
 var $overlay = $('<div class="inspectOverlay" id="drop" style="position: absolute; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
-var $dimensions = $('<div class="overlayDimensions" style="position: relative, z-index: 100000000; background-color: yellow; color: black; font-size: 1vw; text-align: center; opacity: 1.0"></div>');
+
+var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
+var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>');
+var $dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white"></div>');
+
+//Append Close Option
+$overlay.append($closeOverlay);
+closeOverlayEventBinder();
+
+//Append Paste Option
+$overlay.append($pasteOverlay);
+pasteOverlayEventBinder();
+
+$overlay.append($dimensions);
+
 var $topOfStack;
 var elementsStack;
 var arrowUp = 38; 
@@ -12,8 +26,6 @@ var divHeight;
 var divWidth;
 var offset;
 var overlayDimensions;
-var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
-var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>')
 
 //Get Template for Paste Modal
 var pasteModalURL = chrome.extension.getURL("templates/modal_template.html");
@@ -57,44 +69,21 @@ function bindDragEvents() {
         alert("File Type not recognized");
       }
 
-
       reader.addEventListener('loadend', function(event) {
 
         var readerData = this.result;
-        var $replacerContent = $('<iframe class="replacerContent"></iframe>');
 
-        // debugger;
-        var currentReplacerContentID = generateRandomID();
-        $replacerContent.attr('id', currentReplacerContentID);
-        $replaceOriginalContent = $('#' + currentReplacerContentID);
-        var $originalContentParent = $($topOfStack.parent());
-        var originalBackgroundColor = $originalContentParent.css('background-color');
+        // $replacerContent = $('#' + currentReplacerContentID);
+        //var originalBackgroundColor = $originalContentParent.css('background-color');
 
         if (file.type.includes("image")) {
           var img = document.createElement('img');
           img.file = file;
           img.src = readerData;
-          replaceOriginalContent($replacerContent, img, $originalContentParent);
-          // $replacerContent.contents().find("body").css({
-          //   padding: 0,
-          //   margin: 0,
-          //   border: 0
-          // });
-          // $replacerContent.contents().find("body").html(img);
-          injectIframeData($replacerContent, img);
-
+          // debugger;
+          replaceOriginalContent($topOfStack, '<img src="' + readerData + '">');
         } else if (file.type.includes("text")) {
-          replaceOriginalContent($replacerContent, readerData, $originalContentParent);
-          // $replacerContent.contents().find("body").css({
-          //   padding: 0,
-          //   margin: 0,
-          //   border: 0
-          // });
-          // $replacerContent.contents().find("body").html(readerData);
-          injectIframeData($replacerContent, readerData);
-          //still grey
-          $.parseHTML(readerData, '.replacerContent', true); 
-
+          replaceOriginalContent($topOfStack, readerData);
         }
       });
     }
@@ -102,45 +91,35 @@ function bindDragEvents() {
   });
 };
 
-function injectIframeData($replacerContent, data) {
-  $replacerContent.contents().find("body").css({
+function replaceOriginalContent($targetElement, data) {
+  // debugger;
+
+  var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
+
+  $newContent.css({
+    width: divWidth,
+    height: divHeight
+  });
+
+  //turn scrolling off?
+  // $replacerContent.attr('scrolling', 'no');
+
+  $targetElement.replaceWith($newContent);
+
+  $newContent[0].contentWindow.document.open('text/html', 'replace');
+  $newContent[0].contentWindow.document.write(data);
+  $newContent[0].contentWindow.document.close();
+
+  $newContent.contents().find("body").css({
     padding: 0,
     margin: 0,
     border: 0
   });
 
-  $replacerContent.contents().find("body").html(data);
-
-};
-
-function replaceOriginalContent($content, data, $originalContentParent) {
-  // debugger;
-  $topOfStack.remove();
-  //on refactor, put bottom line back in but with a callback function
-  // $content.contents().find("body").html(data);
-  $content.css({
-    width: divWidth,
-    height: divHeight,
-    border: "none"
-  });
-  //turn scrolling off?
-  // $content.attr('scrolling', 'no');
-  // debugger;
-  $originalContentParent.append($content);
   removeOverlay();
 };
 
-// Overlay
-function disableArrowKeys() {
-  window.addEventListener("keydown", function(e) {
-    if ([arrowUp].indexOf(e.keyCode) > -1) {
-      e.preventDefault();
-    }
-  }, false);
-};
-
 function renderOverlay() {
-  $('body').append($overlay);
   offset = $topOfStack.offset();
   divHeight = $topOfStack.innerHeight();
   divWidth = $topOfStack.innerWidth();
@@ -159,6 +138,8 @@ function renderOverlay() {
 
   // console.log("stack: ", elementsStack, "top: ", $topOfStack);
 
+  removeOverlay();
+
   $overlay.css({
     width: divWidth,
     height: divHeight,
@@ -166,98 +147,35 @@ function renderOverlay() {
     left: offset.left - bodyOffsetLeft
   });
 
-  var dimensions = '<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white">' + divWidth + 'X' + divHeight + '</div>';
-  $overlay.html(dimensions);
+  console.log(divWidth + 'X' + divHeight);
 
+  $('body').append($overlay);
+
+  $dimensions.text(divWidth + 'X' + divHeight);
 };
 
 function removeOverlay() {
-  $('.inspectOverlay').remove();
+  $overlay.detach();
 };
 
 function closeOverlayEventBinder() {
-  $('.closeOverlay').on({
+  $closeOverlay.on({
     'click': function(event) {
+      $(window).off('keydown.screenshot');
       removeOverlay();
     }
   });
-};
-
-//Paste Modal functions
-function injectPasteModal() {
-  var pasteModalDoesNotExists = $('body').find('#pasteModal').length === 0 ? true : false;
-  if (pasteModalDoesNotExists) {
-    $('body').append(pasteModalTemplate);
-  }
 };
 
 function pasteOverlayEventBinder() {
-  $('.pasteOverlay').on('click', function(event) {
-    $('#pasteModal').modal('show');
-  });
-};
+  $pasteOverlay.on('click', function(event) {
+    var content = window.prompt('Paste replacement content');
 
-function getPasteContent() {
-  pasteContentTags = $('.pasteContent').val();
-};
-
-function bindPasteEvent() {
-  $('.pasteSubmit').on('click', function(event) {
-    //get paste content
-    //inject that content into selected/highlighted div
-    //run any scripts that may be inside
-  });
-};
-
-// Overlay Handlers
-$('body').on({
-  'click': function(event) {
-    $('*').off('mousemove');
-    event.stopPropagation();
-    event.preventDefault();
-    //Set focus on overlay so keydowns can be captured
-    $(this).attr('tabindex', '0');
-    $(this).focus();
-    //disable up keydowns(ex: arrowUp)
-    disableArrowKeys();
-
-    //Append Close Option
-    $overlay.append($closeOverlay);
-    closeOverlayEventBinder();
-
-    //Append Paste Option
-    $overlay.append($pasteOverlay);
-    pasteOverlayEventBinder();
-
-    //Initialize drop
-    drop = document.getElementById('drop');
-    bindDragEvents();
-  }, 
-  'keydown': function(event) {
-    $('*').off('mousemove');
-    var pendingTopOfStack;
-    //capture keydowns
-    if (event.keyCode === arrowUp) {
-
-      pendingTopOfStack = elementsStack.shift();
-
-      if ($(pendingTopOfStack).is('.inspectOverlay')) {
-        pendingTopOfStack = elementsStack.shift();
-      }
-
-      $topOfStack = $(elementsStack[0]);
-
-      removeOverlay();
-      renderOverlay();
-
-      $('.inspectOverlay').focus();
+    if (content) {
+      replaceOriginalContent($topOfStack, content);
     }
-  }
-}, '.inspectOverlay');
-
-//Helper Functions
-function generateRandomID() {
-  return '_' + Math.random().toString(36).substr(2, 9);
+    //$('#pasteModal').modal('show');
+  });
 };
 
 chrome.runtime.onMessage.addListener(
@@ -274,17 +192,51 @@ chrome.runtime.onMessage.addListener(
         event.preventDefault();
       });
 
-      //Inject Paste Modal
-      injectPasteModal();
-      bindPasteEvent();
+      $overlay.off('click');
 
-      $('div').not('body, html').mousemove(function(event) {
+      $overlay.one('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        $('body').off('mousemove.screenshot')
+
+        //Set focus on overlay so keydowns can be captured
+        $(this).attr('tabindex', '0');
+        $(this).focus();
+
+        //Initialize drop
+        drop = document.getElementById('drop');
+        bindDragEvents();
+
+        $(window).on('keydown.screenshot', function(event) {
+          var pendingTopOfStack;
+          //capture keydowns
+          if (event.keyCode === arrowUp) {
+
+            pendingTopOfStack = elementsStack.shift();
+
+            // Test for presence of $overlay object?
+            if ($(pendingTopOfStack).is('.inspectOverlay')) {
+              pendingTopOfStack = elementsStack.shift();
+            }
+
+            $topOfStack = $(elementsStack[0]);
+
+            renderOverlay();
+
+            $('.inspectOverlay').focus();
+          }
+        });
+      });
+
+      $('body').on('mousemove.screenshot', function(event) {
         event.stopPropagation();
 
         //get coordinates
         //subtracted offset to fix scrolling issue
         var mouseCoordinateX = event.pageX - window.pageXOffset;
         var mouseCoordinateY = event.pageY - window.pageYOffset;
+
         //get elements on point from coordinates, this provides me the stack
         elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
 

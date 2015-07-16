@@ -13,7 +13,6 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": ["styles/library/bootstrap.min.css", "styles/library/bootstrap-theme.min.css"],
       "js": ["js/library/jquery-2.1.4.min.js", "js/library/bootstrap.min.js", "content.js"]
     }
   ],
