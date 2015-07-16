@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
  
-  "name": "Ad Replacer",
+  "name": "Creative Tool Ad Replacer",
   "description": "This extension will visually replace ads on a webpage",
-  "version": "0.0",
+  "version": "0.1",
  
   "background": {
     "scripts": ["background.js"]
