@@ -18,10 +18,5 @@ In order to open up the paste option, click on the "U" button on the top right o
 
 Paste any tags you have on your clipboard into the text area and click "Okay". This will replace the selected element with your tags. 
 
-
-
-Ideas: 
-* Set flag for pausing extension
-* Draggable and resizable element Example: http://jsfiddle.net/4Vfm5/1095/
-* Overlay Example: http://codepen.io/ianfarb/pen/ikeAf
+Notes: Images or tags may not fit correctly if they are not already tailored for the selected element. 
 
