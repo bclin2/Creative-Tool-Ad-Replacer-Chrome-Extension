@@ -64,7 +64,7 @@ function bindDragEvents() {
         var $replacerContent = $('<iframe class="replacerContent"></iframe>');
 
         // debugger;
-        var currentReplacerContentID = generateRandomID()
+        var currentReplacerContentID = generateRandomID();
         $replacerContent.attr('id', currentReplacerContentID);
         $replaceOriginalContent = $('#' + currentReplacerContentID);
         var $originalContentParent = $($topOfStack.parent());
@@ -75,21 +75,23 @@ function bindDragEvents() {
           img.file = file;
           img.src = readerData;
           replaceOriginalContent($replacerContent, img, $originalContentParent);
-          $replacerContent.contents().find("body").css({
-            padding: 0,
-            margin: 0,
-            border: 0
-          });
-          $replacerContent.contents().find("body").html(img);
+          // $replacerContent.contents().find("body").css({
+          //   padding: 0,
+          //   margin: 0,
+          //   border: 0
+          // });
+          // $replacerContent.contents().find("body").html(img);
+          injectIframeData($replacerContent, img);
 
         } else if (file.type.includes("text")) {
           replaceOriginalContent($replacerContent, readerData, $originalContentParent);
-          $replacerContent.contents().find("body").css({
-            padding: 0,
-            margin: 0,
-            border: 0
-          });
-          $replacerContent.contents().find("body").html(readerData);
+          // $replacerContent.contents().find("body").css({
+          //   padding: 0,
+          //   margin: 0,
+          //   border: 0
+          // });
+          // $replacerContent.contents().find("body").html(readerData);
+          injectIframeData($replacerContent, readerData);
           //still grey
           $.parseHTML(readerData, '.replacerContent', true); 
 
@@ -98,6 +100,17 @@ function bindDragEvents() {
     }
     return false;
   });
+};
+
+function injectIframeData($replacerContent, data) {
+  $replacerContent.contents().find("body").css({
+    padding: 0,
+    margin: 0,
+    border: 0
+  });
+
+  $replacerContent.contents().find("body").html(data);
+
 };
 
 function replaceOriginalContent($content, data, $originalContentParent) {
@@ -180,7 +193,6 @@ function injectPasteModal() {
 
 function pasteOverlayEventBinder() {
   $('.pasteOverlay').on('click', function(event) {
-    console.log('render modal clicked');
     $('#pasteModal').modal('show');
   });
 };
