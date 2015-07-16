@@ -101,9 +101,6 @@ function replaceOriginalContent($targetElement, data) {
     height: divHeight
   });
 
-  //turn scrolling off?
-  // $replacerContent.attr('scrolling', 'no');
-
   $targetElement.replaceWith($newContent);
 
   $newContent[0].contentWindow.document.open('text/html', 'replace');
