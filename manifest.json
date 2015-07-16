@@ -13,7 +13,7 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["js/library/jquery-2.1.4.min.js", "js/library/bootstrap.min.js", "content.js"]
+      "js": ["js/library/jquery-2.1.4.min.js", "content.js"]
     }
   ],
   "browser_action": { 
