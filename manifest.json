@@ -17,9 +17,13 @@
     }
   ],
   "browser_action": { 
-   "default_icon": "placeholder_icon.png"
+   "default_icon": "imgs/icon16.png"
   }, 
   "web_accessible_resources": [
     "templates/*"
-  ]
+  ],
+  "icons": {
+    "16": "imgs/icon16.png",
+    "128": "imgs/icon128.png"
+  }
 }
