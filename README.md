@@ -2,7 +2,7 @@
 The purpose of this Chrome extension is to improve productivity for anyone who needs to modify elements on a web page and take screenshots of them. 
 
 # Installation
-It is currently unlisted in the Chrome Webstore; please contact me for the URL. 
+It is currently unlisted in the Chrome Webstore; please contact me for the URL. Or you could just pull it down and install it manually if you want to try it out. 
 
 # How to use it
 In order to activate the tool, click on the "CT" icon on the top right of your browser once you have installed it.  
