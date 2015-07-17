@@ -27,12 +27,6 @@ var divWidth;
 var offset;
 var overlayDimensions;
 
-//Get Template for Paste Modal
-var pasteModalURL = chrome.extension.getURL("templates/modal_template.html");
-var pasteModalTemplate;
-$.get(pasteModalURL, function(data) {
-  pasteModalTemplate = data;
-});
 var pasteContentTags;
 
 // File Upload
