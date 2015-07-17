@@ -176,7 +176,7 @@ chrome.runtime.onMessage.addListener(
       console.log("Content.js is running!");
 
       //debugging purposes, removes all hrefs from anchors
-      $('a').removeAttr('href');
+      // $('a').removeAttr('href');
 
       //prevent drag from redirecting
       $('body').bind('drag', function(event) {
