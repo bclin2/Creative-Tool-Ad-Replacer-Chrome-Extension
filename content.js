@@ -67,14 +67,10 @@ function bindDragEvents() {
 
         var readerData = this.result;
 
-        // $replacerContent = $('#' + currentReplacerContentID);
-        //var originalBackgroundColor = $originalContentParent.css('background-color');
-
         if (file.type.includes("image")) {
           var img = document.createElement('img');
           img.file = file;
           img.src = readerData;
-          // debugger;
           replaceOriginalContent($topOfStack, '<img src="' + readerData + '">');
         } else if (file.type.includes("text")) {
           replaceOriginalContent($topOfStack, readerData);
@@ -86,7 +82,6 @@ function bindDragEvents() {
 };
 
 function replaceOriginalContent($targetElement, data) {
-  // debugger;
 
   var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
 
@@ -119,26 +114,22 @@ function renderOverlay() {
     return;
   }
   
-  //offset may be off because it doesn't take into account of body. 
-  //jquery .offset() doesn't take into account margin, padding, border, and offset of body
+  // bodyOffsetLeft = $('body').offset().left;
+  // bodyOffsetTop = $('body').offset().top;
 
-  // bodyOffsetLeft = +$('body').css('margin-left')[0] + +$('body').css('border-left')[0] + +$('body').css('padding-left')[0] + $('body').offset().left;
-  // bodyOffsetTop = +$('body').css('margin-top')[0] + +$('body').css('border-top')[0] + +$('body').css('padding-top')[0] + $('body').offset().top;
-  bodyOffsetLeft = $('body').offset().left;
-  bodyOffsetTop = $('body').offset().top;
-
-  // console.log("stack: ", elementsStack, "top: ", $topOfStack);
+  // console.log($topOfStack[0]);
+  var position = $topOfStack[0].getBoundingClientRect();
 
   removeOverlay();
 
   $overlay.css({
     width: divWidth,
     height: divHeight,
-    top: offset.top - bodyOffsetTop,
-    left: offset.left - bodyOffsetLeft
+    top: position.top + window.pageYOffset,
+    left: position.left
   });
 
-  console.log(divWidth + 'X' + divHeight);
+  // console.log(divWidth + 'X' + divHeight);
 
   $('body').append($overlay);
 
@@ -189,7 +180,7 @@ chrome.runtime.onMessage.addListener(
         event.stopPropagation();
         event.preventDefault();
 
-        $('body').off('mousemove.screenshot')
+        $('body').off('mousemove.screenshot');
 
         //Set focus on overlay so keydowns can be captured
         $(this).attr('tabindex', '0');
