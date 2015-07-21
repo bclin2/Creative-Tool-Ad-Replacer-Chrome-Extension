@@ -5,6 +5,7 @@ The purpose of this Chrome extension is to improve productivity for anyone who n
 It is currently unlisted in the Chrome Webstore; please contact me for the URL. Or you could just pull it down and install it manually if you want to try it out. 
 
 # How to use it
+## Image Div Replacer
 In order to activate the tool, click on the "CT" icon on the top right of your browser once you have installed it.  
 
 When you move your mouse over an element on the webpage, the element is highlighted with a yellow overlay.  
@@ -18,5 +19,8 @@ In order to open up the paste option, click on the "P" button on the top right o
 
 Paste any tags you have on your clipboard into the text area and click "Okay". This will replace the selected element with your tags. 
 
-Notes: Images or tags may not fit correctly if they are not already tailored for the selected element. 
+Notes: Images or tags may not fit correctly if they are not already tailored to fit the selected element. 
+
+## Video Ad Replacer Toggle
+Under Construction
 
