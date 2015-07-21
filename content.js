@@ -39,7 +39,7 @@ function cancelDefaultDrop(event) {
     event.stopPropagation();
   }
   return false;
-}
+};
 
 function bindDragEvents() {
   drop.addEventListener('dragover', cancelDefaultDrop);
@@ -113,23 +113,19 @@ function renderOverlay() {
   if (divHeight === 0 || divWidth === 0) {
     return;
   }
-  
-  // bodyOffsetLeft = $('body').offset().left;
-  // bodyOffsetTop = $('body').offset().top;
 
   // console.log($topOfStack[0]);
   var position = $topOfStack[0].getBoundingClientRect();
 
   removeOverlay();
 
+  //add window.pageYOffset to account for scrolling
   $overlay.css({
     width: divWidth,
     height: divHeight,
     top: position.top + window.pageYOffset,
     left: position.left
   });
-
-  // console.log(divWidth + 'X' + divHeight);
 
   $('body').append($overlay);
 
@@ -233,3 +229,28 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
+
+function saveRedirectURL(redirectURL) {
+  chrome.storage.local.set({"redirectURL": redirectURL});
+};
+
+//webRequests can't be called from the content script; needs to communicate with the background.js
+//use event filtering
+
+
+//Try connect
+// chrome.runtime.onMessage.addListener(
+//   function(request, sender, sendResponse) {
+//     if ( request.message === "video_replacer_activated" ) {
+//       var redirectURL = prompt("Please enter the redirect URL");
+//       if (redirectURL.length === 0) {
+//         alert("Please enter a valid URL.");
+//       } else {
+//         saveRedirectURL(redirectURL);
+//       }
+//       console.log(chrome.runtime);
+//     }
+//     //reload WITHOUT cache
+//     // window.location.reload(true);
+//   }
+// );
