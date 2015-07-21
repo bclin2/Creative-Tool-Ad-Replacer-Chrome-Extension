@@ -3,22 +3,47 @@
 
 //on reload check local storage for redirectURL
 //Have to check if redirectURL exists, if it does it means user is using video replacer and not image replacer
-var redirectURL;
-chrome.storage.local.get('redirectURL', function(result) {
-  redirectURL = result;
-  console.log(result);
-})
+// var redirectURL;
+// chrome.storage.local.get('redirectURL', function(result) {
+//   redirectURL = result;
+//   console.log(result);
+// })
+
+// var backgroundPort;
+
+// chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+//   var activeTab = tabs[0];
+//   // console.log("Icon has been clicked!");
+//   // alert("Hello from background.js");
+//   // chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
+//   var backgroundPort = chrome.tabs.connect(activeTab.id, {name: "backgroundToContent"});
+// });
+
+chrome.runtime.onConnect.addListener(function(port) {
+  console.log("Connected...", console.log(port));
+  port.onMessage.addListener(function(message) {
+    console.log("message received: ", message);
+    if (message.videoToggle) {
+      console.log("Activating onHeadersReceived Listeners...");
+      //postMessage to content.js 
+      port.postMessage({videoToggleListenersActive: true});
+    } else if (message.test === "FROM CONTENT.JS") {
+      // console.log("Deacivating onHeadersReceived Listeners");
+      console.log("content.js: ", message.test);
+    }
+  });
+});
 
 //CHECK if event filtering is set to on/off
   //if ON, set event filters to ON, tell content.js to reload the page, and prompt users for a redirect URL in content.js
   //DEFAULT is OFF
 
-function vastRedirect() {
-  //Let user know the video ads have been replaced with alert
-  //replace video ad VAST request
-  //delete redirectURL from storage
+// function vastRedirect() {
+//   //Let user know the video ads have been replaced with alert
+//   //replace video ad VAST request
+//   //delete redirectURL from storage
 
-}
+// }
 
 
 
