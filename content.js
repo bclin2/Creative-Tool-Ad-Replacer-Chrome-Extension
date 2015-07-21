@@ -238,6 +238,23 @@ function saveRedirectURL(redirectURL) {
 //use event filtering
 
 
+var contentPort = chrome.runtime.connect({name: "contentToBackground"});
+
+chrome.runtime.onConnect.addListener(function(port) {
+  console.log("Connected!");
+  port.onMessage.addListener(function(message) {
+    console.log("message received: ", message);
+    if (message.videoToggleListenersActive) {
+      console.log('onHeadersReceived Listeners Active');
+      //prompt for redirect URL
+      //send redirectURL to background.js
+      //refresh
+    }
+  });
+});
+
+
+
 //Try connect
 // chrome.runtime.onMessage.addListener(
 //   function(request, sender, sendResponse) {
