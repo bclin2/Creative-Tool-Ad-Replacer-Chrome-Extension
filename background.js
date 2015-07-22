@@ -42,25 +42,8 @@ var vastRedirectAddListener = function(details) {
 
 chrome.runtime.onConnect.addListener(function(port) {
   console.log("Connected...", port);
-  //connect to content.js
-  var backgroundPort;
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    var activeTab = tabs[0];
-    backgroundPort = chrome.tabs.connect(activeTab.id, {name: "backgroundToContent"});
-  });
   port.onMessage.addListener(function(message) {
     console.log("message received: ", message);
-    if (message.videoToggle) {
-      console.log("Activating onHeadersReceived Listeners...");
-      //send request for redirectUrl from content.js
-      backgroundPort.postMessage({videoToggleListenersActive: true});
-    } else {
-      console.log("Deacivating onHeadersReceived Listeners");
-      //removeEventListeners for Filters
-      chrome.webRequest.onHeadersReceived.removeListener(vastRedirectAddListener);
-      // backgroundPort.postMessage({videoToggleListenersActive: false});
-      redirectURL = null;
-    }
 
     if (message.redirectUrl) {
       console.log("content.js: ", message.redirectUrl);
@@ -82,10 +65,9 @@ chrome.runtime.onConnect.addListener(function(port) {
         ]},  //event filtering 
         ["blocking", "responseHeaders"]
       );  
+    } else {
+      chrome.webRequest.onHeadersReceived.removeListener(vastRedirectAddListener);
     }
+
   });
 });
-
-//CHECK if event filtering is set to on/off
-  //if ON, set event filters to ON, tell content.js to reload the page, and prompt users for a redirect URL in content.js
-  //DEFAULT is OFF
