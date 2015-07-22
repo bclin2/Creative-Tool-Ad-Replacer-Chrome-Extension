@@ -241,15 +241,17 @@ function saveRedirectURL(redirectURL) {
 var contentPort = chrome.runtime.connect({name: "contentToBackground"});
 
 chrome.runtime.onConnect.addListener(function(port) {
-  console.log("Connected!");
+  console.log("Connected!", port);
   port.onMessage.addListener(function(message) {
     console.log("message received: ", message);
     if (message.videoToggleListenersActive) {
       console.log('onHeadersReceived Listeners Active');
-      //prompt for redirect URL
+      var redirectURL = prompt("Please input your redirectURL here");
       //send redirectURL to background.js
+      contentPort.postMessage({redirectURL: redirectURL});
       //refresh
-    }
+      window.location.reload();
+    } 
   });
 });
 
