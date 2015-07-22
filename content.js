@@ -152,7 +152,6 @@ function pasteOverlayEventBinder() {
     if (content) {
       replaceOriginalContent($topOfStack, content);
     }
-    //$('#pasteModal').modal('show');
   });
 };
 
@@ -161,9 +160,6 @@ chrome.runtime.onMessage.addListener(
     if ( request.message === "clicked_browser_action" ) {
 
       console.log("Content.js is running!");
-
-      //debugging purposes, removes all hrefs from anchors
-      // $('a').removeAttr('href');
 
       //prevent drag from redirecting
       $('body').bind('drag', function(event) {
@@ -234,42 +230,27 @@ function saveRedirectURL(redirectUrl) {
   chrome.storage.local.set({"redirectUrl": redirectUrl});
 };
 
-//webRequests can't be called from the content script; needs to communicate with the background.js
-//use event filtering
-
-
 var contentPort = chrome.runtime.connect({name: "contentToBackground"});
 
 chrome.runtime.onConnect.addListener(function(port) {
   console.log("Connected!", port);
   port.onMessage.addListener(function(message) {
     console.log("message received: ", message);
-    if (message.videoToggleListenersActive) {
-      console.log('onHeadersReceived Listeners Active');
+    if (message.videoToggle) {
+      console.log('From Content');
       var redirectUrl = prompt("Please input your redirect URL here");
       //send redirectUrl to background.js
-      contentPort.postMessage({redirectUrl: redirectUrl});
+      if (redirectUrl) {
+        contentPort.postMessage({redirectUrl: redirectUrl});
+      } else {
+        return;
+      }
       //refresh
       window.location.reload();
+    } else {
+      //this is when the box is UNCHECKED
+      //send null
+      contentPort.postMessage({redirectUrl: null});
     }
   });
 });
-
-
-
-//Try connect
-// chrome.runtime.onMessage.addListener(
-//   function(request, sender, sendResponse) {
-//     if ( request.message === "video_replacer_activated" ) {
-//       var redirectURL = prompt("Please enter the redirect URL");
-//       if (redirectURL.length === 0) {
-//         alert("Please enter a valid URL.");
-//       } else {
-//         saveRedirectURL(redirectURL);
-//       }
-//       console.log(chrome.runtime);
-//     }
-//     //reload WITHOUT cache
-//     // window.location.reload(true);
-//   }
-// );
