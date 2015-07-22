@@ -230,8 +230,8 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-function saveRedirectURL(redirectURL) {
-  chrome.storage.local.set({"redirectURL": redirectURL});
+function saveRedirectURL(redirectUrl) {
+  chrome.storage.local.set({"redirectUrl": redirectUrl});
 };
 
 //webRequests can't be called from the content script; needs to communicate with the background.js
@@ -246,12 +246,12 @@ chrome.runtime.onConnect.addListener(function(port) {
     console.log("message received: ", message);
     if (message.videoToggleListenersActive) {
       console.log('onHeadersReceived Listeners Active');
-      var redirectURL = prompt("Please input your redirectURL here");
-      //send redirectURL to background.js
-      contentPort.postMessage({redirectURL: redirectURL});
+      var redirectUrl = prompt("Please input your redirect URL here");
+      //send redirectUrl to background.js
+      contentPort.postMessage({redirectUrl: redirectUrl});
       //refresh
       window.location.reload();
-    } 
+    }
   });
 });
 
