@@ -53,16 +53,20 @@ chrome.runtime.onConnect.addListener(function(port) {
       //add event listener 
       chrome.webRequest.onHeadersReceived.addListener(
         vastRedirectAddListener,
-        {urls: [ '*://*.telemetryverification.net/*',
-         '*://*.vindicosuite.com/*',
-         '*://*.tidaltv.com/*',
-         '*://*.mookie1.com/*',
-         '*://*.doubleclick.net/*',
-         '*://rtr.innovid.com/r1*',
-         '*://*.freewheel.tv/*',
-         '*://optimized-by.rubiconproject.com/a/api/vast*',
-         '*://uswvideo.adsrvr.org/data/vast/*'
-        ]},  //event filtering 
+        {
+          urls: [
+            '*://*.telemetryverification.net/*',
+            '*://*.vindicosuite.com/*',
+            '*://*.tidaltv.com/*',
+            '*://*.mookie1.com/*',
+            '*://*.doubleclick.net/*',
+            '*://rtr.innovid.com/r1*',
+            '*://*.freewheel.tv/*',
+            '*://optimized-by.rubiconproject.com/a/api/vast*',
+            '*://uswvideo.adsrvr.org/data/vast/*'
+          ],
+          types: ['other']
+        },  //event filtering 
         ["blocking", "responseHeaders"]
       );  
     } else {
