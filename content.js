@@ -39,7 +39,7 @@ function cancelDefaultDrop(event) {
     event.stopPropagation();
   }
   return false;
-}
+};
 
 function bindDragEvents() {
   drop.addEventListener('dragover', cancelDefaultDrop);
@@ -67,14 +67,10 @@ function bindDragEvents() {
 
         var readerData = this.result;
 
-        // $replacerContent = $('#' + currentReplacerContentID);
-        //var originalBackgroundColor = $originalContentParent.css('background-color');
-
         if (file.type.includes("image")) {
           var img = document.createElement('img');
           img.file = file;
           img.src = readerData;
-          // debugger;
           replaceOriginalContent($topOfStack, '<img src="' + readerData + '">');
         } else if (file.type.includes("text")) {
           replaceOriginalContent($topOfStack, readerData);
@@ -86,7 +82,6 @@ function bindDragEvents() {
 };
 
 function replaceOriginalContent($targetElement, data) {
-  // debugger;
 
   var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
 
@@ -118,27 +113,19 @@ function renderOverlay() {
   if (divHeight === 0 || divWidth === 0) {
     return;
   }
-  
-  //offset may be off because it doesn't take into account of body. 
-  //jquery .offset() doesn't take into account margin, padding, border, and offset of body
 
-  // bodyOffsetLeft = +$('body').css('margin-left')[0] + +$('body').css('border-left')[0] + +$('body').css('padding-left')[0] + $('body').offset().left;
-  // bodyOffsetTop = +$('body').css('margin-top')[0] + +$('body').css('border-top')[0] + +$('body').css('padding-top')[0] + $('body').offset().top;
-  bodyOffsetLeft = $('body').offset().left;
-  bodyOffsetTop = $('body').offset().top;
-
-  // console.log("stack: ", elementsStack, "top: ", $topOfStack);
+  // console.log($topOfStack[0]);
+  var position = $topOfStack[0].getBoundingClientRect();
 
   removeOverlay();
 
+  //add window.pageYOffset to account for scrolling
   $overlay.css({
     width: divWidth,
     height: divHeight,
-    top: offset.top - bodyOffsetTop,
-    left: offset.left - bodyOffsetLeft
+    top: position.top + window.pageYOffset,
+    left: position.left
   });
-
-  console.log(divWidth + 'X' + divHeight);
 
   $('body').append($overlay);
 
@@ -165,7 +152,6 @@ function pasteOverlayEventBinder() {
     if (content) {
       replaceOriginalContent($topOfStack, content);
     }
-    //$('#pasteModal').modal('show');
   });
 };
 
@@ -174,9 +160,6 @@ chrome.runtime.onMessage.addListener(
     if ( request.message === "clicked_browser_action" ) {
 
       console.log("Content.js is running!");
-
-      //debugging purposes, removes all hrefs from anchors
-      // $('a').removeAttr('href');
 
       //prevent drag from redirecting
       $('body').bind('drag', function(event) {
@@ -189,7 +172,7 @@ chrome.runtime.onMessage.addListener(
         event.stopPropagation();
         event.preventDefault();
 
-        $('body').off('mousemove.screenshot')
+        $('body').off('mousemove.screenshot');
 
         //Set focus on overlay so keydowns can be captured
         $(this).attr('tabindex', '0');
@@ -242,3 +225,32 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
+
+function saveRedirectURL(redirectUrl) {
+  chrome.storage.local.set({"redirectUrl": redirectUrl});
+};
+
+var contentPort = chrome.runtime.connect({name: "contentToBackground"});
+
+chrome.runtime.onConnect.addListener(function(port) {
+  console.log("Connected!", port);
+  port.onMessage.addListener(function(message) {
+    console.log("message received: ", message);
+    if (message.videoToggle) {
+      console.log('From Content');
+      var redirectUrl = prompt("Please input your redirect URL here");
+      //send redirectUrl to background.js
+      if (redirectUrl) {
+        contentPort.postMessage({redirectUrl: redirectUrl});
+      } else {
+        return;
+      }
+      //refresh
+      window.location.reload();
+    } else {
+      //this is when the box is UNCHECKED
+      //send null
+      contentPort.postMessage({redirectUrl: null});
+    }
+  });
+});

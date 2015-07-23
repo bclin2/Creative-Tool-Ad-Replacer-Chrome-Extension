@@ -5,8 +5,9 @@
   "description": "This extension will visually replace ads on a webpage",
   "version": "0.2",
  
+
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["js/library/jquery-2.1.4.min.js", "background.js"]
   },
   "content_scripts": [
     {
@@ -17,7 +18,8 @@
     }
   ],
   "browser_action": { 
-   "default_icon": "imgs/icon16.png"
+    "default_icon": "imgs/icon16.png",
+    "default_popup": "popup.html"
   }, 
   "web_accessible_resources": [
     "templates/*"
@@ -25,5 +27,9 @@
   "icons": {
     "16": "imgs/icon16.png",
     "128": "imgs/icon128.png"
-  }
+  },
+
+  "permissions": [
+    "<all_urls>", "webRequest", "webRequestBlocking", "activeTab", "storage", "tabs"
+  ]
 }
