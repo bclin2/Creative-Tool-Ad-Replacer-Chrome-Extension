@@ -23,6 +23,7 @@ function videoToggle() {
     chrome.browserAction.setBadgeText({text: "vOFF"});
   }
   chrome.storage.local.set({"videoToggleStatus": checked});
+
   port.postMessage({videoToggle: checked});
 };
 
