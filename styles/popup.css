@@ -1,0 +1,72 @@
+p {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0,0,0,0.54);
+  font-family: "Helvetica", serif;
+  text-align: center;
+}
+
+#imageReplacer {
+  font-size: 20px;
+  margin-bottom: 15px;
+  border: none;
+  background-color: #1CC1F7;
+  color: white;
+  height: 32px;
+  width: 124px;
+  font-family: "Helvetica", serif;
+}
+
+.toggle {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+
+.toggle + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+}
+
+input.toggle + label {
+  padding: 2px;
+  width: 120px;
+  height: 28px;
+  border-radius: 20%;
+}
+input.toggle + label:before, input.toggle + label:after {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  color: #fff;
+  font-family: "Helvetica", serif;
+  font-size: 20px;
+  text-align: center;
+  line-height: 34px;
+}
+input.toggle + label:before {
+  background-color: #f2264c;
+  content: attr(data-off);
+  transition: transform 0.5s;
+  backface-visibility: hidden;
+}
+input.toggle + label:after {
+  background-color: #8ce196;
+  content: attr(data-on);
+  transition: transform 0.5s;
+  transform: rotateY(180deg);
+
+  backface-visibility: hidden;
+}
+input.toggle:checked + label:before {
+  transform: rotateY(180deg);
+}
+input.toggle:checked + label:after {
+  transform: rotateY(0);
+}
+

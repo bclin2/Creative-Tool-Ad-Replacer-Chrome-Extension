@@ -16,7 +16,14 @@ function imageReplacer() {
 function videoToggle() { 
   var checked = document.getElementById('videoToggle').checked;
   console.log("STATUS: ", checked);
+  chrome.browserAction.setBadgeBackgroundColor({color: "red"});
+  if (checked) {
+    chrome.browserAction.setBadgeText({text: "vON"});
+  } else {
+    chrome.browserAction.setBadgeText({text: "vOFF"});
+  }
   chrome.storage.local.set({"videoToggleStatus": checked});
+
   port.postMessage({videoToggle: checked});
 };
 

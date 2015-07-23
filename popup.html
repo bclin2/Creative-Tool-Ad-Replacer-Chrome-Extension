@@ -1,15 +1,18 @@
 <!doctype html>
 <html>
   <head>
-    <title>Ad Replacer</title>
+    <title>Creative Tool</title>
+    <link rel="stylesheet" type="text/css" href="styles/popup.css">
     <script src="popup.js"></script>
   </head>
   <body>
-    <h1>Ad Replacer</h1>
-    <button id="imageReplacer">Image Replacer</button>
-    <div class="switchWindow">
-      <label for="switch1">Video Replacer</label>
-      <input type="checkbox" id="videoToggle" name="videoToggle" class="switch"/>
+    <p>Creative Tool</p>
+    <button id="imageReplacer">Image</button>
+    <div class="toggleWrapper">
+      <div class="switch">
+        <input type="checkbox" id="videoToggle" name="videoToggle" class="toggle"/>
+        <label for="videoToggle" data-on="Video" data-off="Video"></label>
+      </div>
     </div>
   </body>
 </html>
