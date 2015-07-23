@@ -237,7 +237,6 @@ chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(message) {
     console.log("message received: ", message);
     if (message.videoToggle) {
-      console.log('From Content');
       var redirectUrl = prompt("Please input your redirect URL here");
       //send redirectUrl to background.js
       if (redirectUrl) {
@@ -249,7 +248,6 @@ chrome.runtime.onConnect.addListener(function(port) {
       window.location.reload();
     } else {
       //this is when the box is UNCHECKED
-      //send null
       contentPort.postMessage({redirectUrl: null});
     }
   });

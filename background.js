@@ -41,12 +41,12 @@ var vastRedirectAddListener = function(details) {
 
 
 chrome.runtime.onConnect.addListener(function(port) {
-  console.log("Connected...", port);
+  // console.log("Connected...", port);
   port.onMessage.addListener(function(message) {
-    console.log("message received: ", message);
+    // console.log("message received: ", message);
 
     if (message.redirectUrl) {
-      console.log("content.js: ", message.redirectUrl);
+      // console.log("content.js: ", message.redirectUrl);
       //receive redirectURL
       redirectUrl = message.redirectUrl;
       // console.log(redirectUrl);
