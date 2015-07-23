@@ -7,7 +7,7 @@ var $overlay = $('<div class="inspectOverlay" id="drop" style="position: absolut
 
 var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
 var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>');
-var $dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white"></div>');
+var $dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 2px"></div>');
 
 //Append Close Option
 $overlay.append($closeOverlay);
@@ -129,7 +129,7 @@ function renderOverlay() {
 
   $('body').append($overlay);
 
-  $dimensions.text(divWidth + 'X' + divHeight);
+  $dimensions.text(divWidth + 'x' + divHeight);
 };
 
 function removeOverlay() {
@@ -237,6 +237,7 @@ chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(message) {
     console.log("message received: ", message);
     if (message.videoToggle) {
+
       var redirectUrl = prompt("Please input your redirect URL here");
       //send redirectUrl to background.js
       if (redirectUrl) {
