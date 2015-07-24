@@ -72,7 +72,8 @@ chrome.runtime.onConnect.addListener(function(port) {
             '*://*.tubemogul.com/*',
             '*://vast.yashi.com/*',
             '*://dbam.dashbida.com/kitaramedia/vast/*',
-            '*://app.scanscout.com/*'
+            '*://app.scanscout.com/*',
+            '*://*.amazon-adsystem.com/*'
           ],
           types: ['other']
         },  //event filtering 
