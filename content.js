@@ -29,7 +29,6 @@ SelectionOverlay.prototype.render = function(targetElementPosition, targetElemen
     return;
   }
 
-  // this.remove();
   //modify self overlay
   this.modifyOverlay(targetElementPosition, targetElementDimensions);
   //remove overlay, append overlay
@@ -38,13 +37,11 @@ SelectionOverlay.prototype.render = function(targetElementPosition, targetElemen
 };
 
 SelectionOverlay.prototype.bindClick = function() {
-  //.one('click.screenshot')
 
   this.$overlay.one('click.screenshot', function(event) {
     event.preventDefault();
     event.stopPropagation();
     this.remove(); 
-    // alert('checking for memory leaks');
     $('body').off('mousemove.screenshot');
     renderPlacement();
   });
@@ -136,7 +133,6 @@ PlacementOverlay.prototype.dragDrop = function() {
   placementThat.$overlay.on('dragenter', this.cancelDefaultDrop);
 
   placementThat.$overlay.on('drop', function(event) {
-    // debugger;
     event.preventDefault();
     var data = event.originalEvent.dataTransfer;
     var files = data.files;
@@ -176,7 +172,6 @@ PlacementOverlay.prototype.moveToParent = function() {
   var overlayThat = this;
   $(window).on('keydown.screenshot', function(event) {
     //capture keydowns
-    // debugger;
     if (event.keyCode === arrowUp) {
       overlayThat.getProperties(overlayThat.$targetElement.parent());
       overlayThat.render();
@@ -270,134 +265,6 @@ PlacementOverlay.prototype.render = function() {
 };
 
 
-
-
-
-// var $overlay = $('<div class="inspectOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
-
-// var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
-// var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>');
-// var $dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px"></div>');
-
-// //Append Close Option
-// $overlay.append($closeOverlay);
-// closeOverlayEventBinder();
-
-// //Append Paste Option
-// $overlay.append($pasteOverlay);
-// pasteOverlayEventBinder();
-
-// $overlay.append($dimensions);
-
-// var elementsStack;
-
-// // File Upload Handlers
-// function cancelDefaultDrop(event) {
-//   if (event.preventDefault) { 
-//     event.preventDefault();
-//     event.stopPropagation();
-//   }
-//   return false;
-// };
-
-// function bindDragEvents($targetElement) {
-//   $('body').on('drag.screenshot', function(event) {
-//     event.preventDefault();
-//   });
-
-//   $overlay.on('dragover', cancelDefaultDrop);
-//   $overlay.on('dragenter', cancelDefaultDrop);
-
-//   $overlay.on('drop', function(event) {
-//     event.preventDefault();
-//     var data = event.dataTransfer;
-//     var files = data.files;
-
-//     for (var index = 0; index < files.length; index++) {
-//       var file = files[index];
-//       var reader = new FileReader();
-
-//       //Determine MIME type here
-//       if (file.type.includes("image")) {
-//         reader.readAsDataURL(file);      
-//       } else if (file.type.includes("text")) {
-//         reader.readAsText(file);
-//       } else {
-//         alert("File Type not recognized");
-//       }
-
-//       reader.addEventListener('loadend', function(event) {
-
-//         var readerData = this.result;
-
-//         if (file.type.includes("image")) {
-//           var img = document.createElement('img');
-//           img.file = file;
-//           img.src = readerData;
-//           replaceOriginalContent($targetElement, '<img src="' + readerData + '">');
-//         } else if (file.type.includes("text")) {
-//           replaceOriginalContent($targetElement, readerData);
-//         }
-//       });
-//     }
-//     return false;
-//   });
-// };
-
-// function replaceOriginalContent($targetElement, data) {
-
-//   var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
-
-//   $newContent.css({
-//     width: $targetElement.innerWidth(),
-//     height: $targetElement.innerHeight()
-//   });
-
-//   $targetElement.replaceWith($newContent);
-
-//   $newContent[0].contentWindow.document.open('text/html', 'replace');
-//   $newContent[0].contentWindow.document.write(data);
-//   $newContent[0].contentWindow.document.close();
-
-//   $newContent.contents().find("body").css({
-//     padding: 0,
-//     margin: 0,
-//     border: 0
-//   });
-
-//   removeOverlay();
-// };
-
-// function renderOverlay($targetElement) {
-//   var position;
-
-//   var divHeight = $targetElement.innerHeight();
-//   var divWidth = $targetElement.innerWidth();
-
-//   if (divHeight === 0 || divWidth === 0) {
-//     return;
-//   }
-
-//   // console.log($topOfStack[0]);
-//   position = $targetElement[0].getBoundingClientRect();
-
-//   removeOverlay();
-
-//   //add window.pageYOffset to account for scrolling
-//   $overlay.css({
-//     width: divWidth,
-//     height: divHeight,
-//     top: position.top,
-//     left: position.left
-//   });
-
-//   $('body').append($overlay);
-
-//   $dimensions.text(divWidth + 'x' + divHeight);
-// };
-
-
-
 var selectionOverlay = new SelectionOverlay();
 selectionOverlay.initialize();
 var placementOverlay = new PlacementOverlay();
@@ -411,91 +278,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if ( request.message === "clicked_browser_action" ) {
 
-      //create new instance here
-      //get instance of SelectionOverlay and PlacementOverlay and make them call their removeEventHandlers function
-        //use an if statement to determine if they exist yet or not
-          //if (currentSelectionOverlay)
-            //SelectionOverly.unbindEvents
-          //else, no need to unbind anything because it doesn't exist
-        //SAME with currentPlacementOverlay  
-
-
-
       console.log("Content.js is running!");
-
-      // $('body').off('mousemove.screenshot');
-      // $(window).off('scroll.screenshot');
-      // $('body').off('drag.screenshot');
-      // $overlay.off('click');      
-      // $overlay.off('dragover');
-      // $overlay.off('dragenter');
-      // $overlay.off('drop');
-
-      //separate this into two states, selecting and placement
-      //that includes event binding
-      //Selection: 
-        //.one('click')
-          //This will call for its own removal and for the instantiation of the placementOverlay
-          //it will also remove the mousemove.screenshot event
-
-      //Placement: 
-        //keydown to go up parents, refactor to not use the stack, but to use targetElement's parents
-        //bindDragEvents, call it when selectionOverlay has been removed and placement has been instantiated
-        //ScrollEvents, this will make sure the placementOverlay will stay where it needs to stay
-          //use a setTimeout to prevent massive lag. Calculate actions per frame in milliseconds so it will save processing power, but still look good.
-        //when instantiating placement, also have a function instantiate event binders and append paste and exit option overlays into the PlacementOverlay
-        //paste and exit event binders
-
-      // $overlay.one('click', function(event) {
-      //   event.stopPropagation();
-      //   event.preventDefault();
-
-      //   $(window).on('scroll.screenshot', function(e) {
-
-      //     var position = $(elementsStack[0])[0].getBoundingClientRect();
-
-      //     $overlay.css({
-      //       top: position.top,
-      //       left: position.left
-      //     });
-      //   });
-
-      //   $('body').off('mousemove.screenshot');
-
-      //   //Set focus on overlay so keydowns can be captured
-      //   $(this).attr('tabindex', '0');
-      //   $(this).focus();
-
-      //   //Initialize drop
-      //   bindDragEvents();
-
-      //   $(window).on('keydown.screenshot', function(event) {
-      //     var $topOfStack;
-
-      //     var pendingTopOfStack;
-      //     //capture keydowns
-      //     if (event.keyCode === arrowUp) {
-
-      //       pendingTopOfStack = elementsStack.shift();
-
-      //       // Test for presence of $overlay object?
-      //       if ($(pendingTopOfStack).is('.inspectOverlay')) {
-      //         pendingTopOfStack = elementsStack.shift();
-      //       }
-
-      //       $topOfStack = $(elementsStack[0]);
-
-      //       renderOverlay($topOfStack);
-
-      //       $('.inspectOverlay').focus();
-      //     }
-      //   });
-      // });
-
-      //NOT apart of any class, this determine stack and selectedElement to pass to instantiations of SelectionOverlay and PlacementOverlay
-
-
-//////////////////////////////////////////////////////////////////////////////
 
       //on browser action click, remove all event binds
       placementOverlay.remove();
@@ -537,7 +320,6 @@ chrome.runtime.onMessage.addListener(
         placementOverlay.getProperties($targetElement);
         selectionOverlay.render(targetElementPosition, targetElementDimensions);
 
-        // renderOverlay($targetElement);
       });
     }
   }
