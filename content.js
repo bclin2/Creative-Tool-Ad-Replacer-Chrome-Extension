@@ -1,144 +1,86 @@
-// content.js
+var arrowUp = 38; 
 
-function SelectionOverlay($targetElement) {
-  this.$overlay = $('<div class="selectionOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
+function SelectionOverlay() {
+  this.$overlay = $('<div class="selectionOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999"></div>');
   this.$dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px"></div>');
-  this.$targetElement = $targetElement;
-  this.height = 0;
-  this.width = 0;
-  this.top = 0;
-  this.left = 0;
 };
 
-SelectionOverlay.prototype.getTargetElementProperties = function() {
-  //get properties from $targetElement and assign them to SelectionOverlay Properties
-  var clientRect = this.$targetElement[0].getBoundingClientRect();
-  this.width = this.$targetElement.innerWidth();
-  this.height = this.$targetElement.innerHeight();
-  this.top = clientRect.top;
-  this.left = clientRect.left
-};
-
-SelectionOverlay.prototype.addDimensions = function() {
-  //add this.$dimensions to this.$overlay by appending it.
+SelectionOverlay.prototype.initialize = function() {
+  //initializes object by appending dimensions to overlay
   this.$overlay.append(this.$dimensions);
 };
 
-SelectionOverlay.prototype.modifyOverlayProperties = function($targetElement) {
-  //use .css() to modify $overlay and $dimensions
+SelectionOverlay.prototype.modifyOverlay = function(targetElementPosition, targetElementDimensions) {
+  //make css changes to this.$overlay
   this.$overlay.css({
-    width: this.width,
-    height: this.height,
-    top: this.top,
-    left: this.left
+    width: targetElementDimensions.width,
+    height: targetElementDimensions.height,
+    top: targetElementPosition.top,
+    left: targetElementPosition.left
   });
-
-  this.$dimensions.text(this.width + 'x' + this.height);
-  this.addDimensions();
-};
-
-SelectionOverlay.prototype.removeEventHandlers = function() {
-  //removes all event handlers that are related to selectionOverlay
-    //remove mousemove.screenshot in the browserAction function?
-
-};
-
-SelectionOverlay.prototype.bindEventHandlers = function() {
-  //set the .one('click') event
-    //this event binder will remove the current $overlay and tell something to instantiate PlacementOverlay
 };
 
 SelectionOverlay.prototype.remove = function() {
-  //use .detach() to this.$overlay
   this.$overlay.detach();
 };
 
-SelectionOverlay.prototype.render = function() {
-  //remove any this.$overlays on the DOM and append new this.$overlays
+SelectionOverlay.prototype.render = function(targetElementPosition, targetElementDimensions) {
+  if (targetElementDimensions.top === 0 || targetElementDimensions.left === 0) {
+    return;
+  }
+
+  // this.remove();
+  //modify self overlay
+  this.modifyOverlay(targetElementPosition, targetElementDimensions);
+  //remove overlay, append overlay
+  $('body').append(this.$overlay);
+  this.$dimensions.text(targetElementDimensions.width + 'x' + targetElementDimensions.height);
 };
 
+SelectionOverlay.prototype.bindClick = function() {
+  //.one('click.screenshot')
 
+  this.$overlay.one('click.screenshot', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.remove(); 
+    // alert('checking for memory leaks');
+    $('body').off('mousemove.screenshot');
+    renderPlacement();
+  });
+};
 
+///////////////////////////////////////////////////////////////////////
 
-function PlacementOverlay($targetElement) {
+function PlacementOverlay() {
   this.$overlay = $('<div class="placementOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
-  this.$dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px"></div>');
+  this.$dimensions = $('<div class="overlayPlacementDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px; pointer-events: none"></div>');
   this.$paste = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>');
   this.$close = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
+  this.$targetElement;
+  this.position;
+  this.dimensions;
+};
+
+PlacementOverlay.prototype.initialize = function() {
+  this.$overlay.append(this.$dimensions);
+  this.$overlay.append(this.$paste);
+  this.$overlay.append(this.$close);
+};
+
+PlacementOverlay.prototype.getProperties = function($targetElement) {
   this.$targetElement = $targetElement;
-  this.width;
-  this.height;
-  this.top;
-  this.left;
+  if (!($targetElement)[0]) {
+    return;
+  }
+  this.targetElementPosition = $targetElement[0].getBoundingClientRect();
+  this.targetElementDimensions = {
+    width: $targetElement.innerWidth(),
+    height: $targetElement.innerHeight()
+  };
 };
 
-PlacementOverlay.prototype.getTargetElementProperties = function($targetElement) {
-  //get properties from $targetElement and assign them to PlacementOverlay Properties
-  var clientRect = this.$targetElement[0].getBoundingClientRect();
-  this.width = this.$targetElement.innerWidth();
-  this.height = this.$targetElement.innerHeight();
-  this.top = clientRect.top;
-  this.left = clientRect.left
-};
-
-PlacementOverlay.prototype.modifyOverlayProperties = function() {
-  //use .css() to modify $overlay and $dimensions
-};
-
-PlacementOverlay.prototype.addOptionsDimensions = function() {
-  //append $dimensions, $paste, $close to $overlay
-};
-
-PlacementOverlay.prototype.bindEventHandlers = function() {
-  //Drag/Drop
-  //Window Keydown (arrowUp)
-  //window scroll
-  //paste event
-  //exit event
-  //call after addOptionsDimensions
-};
-
-PlacementOverlay.prototype.removeEventHandlers = function() {
-  //use .off() for all event handlers in this instance
-};
-
-PlacementOverlay.prototype.remove = function() {
-  //use .detach() to remove this.$overlay from the DOM
-  this.$overlay.detach();
-};
-
-PlacementOverlay.prototype.render = function() {
-  //remove Overlay
-  //append this.$overlay to body after modifyOverlayProperties has been called
-};
-
-
-
-
-
-
-
-var $overlay = $('<div class="inspectOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
-
-var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
-var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>');
-var $dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px"></div>');
-
-//Append Close Option
-$overlay.append($closeOverlay);
-closeOverlayEventBinder();
-
-//Append Paste Option
-$overlay.append($pasteOverlay);
-pasteOverlayEventBinder();
-
-$overlay.append($dimensions);
-
-var elementsStack;
-var arrowUp = 38; 
-
-// File Upload Handlers
-function cancelDefaultDrop(event) {
+PlacementOverlay.prototype.cancelDefaultDrop = function() {
   if (event.preventDefault) { 
     event.preventDefault();
     event.stopPropagation();
@@ -146,17 +88,57 @@ function cancelDefaultDrop(event) {
   return false;
 };
 
-function bindDragEvents($targetElement) {
+PlacementOverlay.prototype.modifyOverlay = function() {
+
+  if (this.targetElementDimensions.top === 0 || this.targetElementDimensions.left === 0) {
+    return;
+  }
+
+  this.$overlay.css({
+    width: this.targetElementDimensions.width,
+    height: this.targetElementDimensions.height,
+    top: this.targetElementPosition.top,
+    left: this.targetElementPosition.left
+  })
+};
+
+PlacementOverlay.prototype.replaceOriginalContent = function(data) {
+  var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
+
+  $newContent.css({
+    width: this.targetElementDimensions.width,
+    height: this.targetElementDimensions.height
+  });
+
+  this.$targetElement.replaceWith($newContent);
+
+  $newContent[0].contentWindow.document.open('text/html', 'replace');
+  $newContent[0].contentWindow.document.write(data);
+  $newContent[0].contentWindow.document.close();
+
+  $newContent.contents().find("body").css({
+    padding: 0,
+    margin: 0,
+    border: 0
+  });
+
+  this.remove();
+};
+
+PlacementOverlay.prototype.dragDrop = function() {
   $('body').on('drag.screenshot', function(event) {
     event.preventDefault();
   });
 
-  $overlay.on('dragover', cancelDefaultDrop);
-  $overlay.on('dragenter', cancelDefaultDrop);
+  var placementThat = this;
 
-  $overlay.on('drop', function(event) {
+  placementThat.$overlay.on('dragover', this.cancelDefaultDrop);
+  placementThat.$overlay.on('dragenter', this.cancelDefaultDrop);
+
+  placementThat.$overlay.on('drop', function(event) {
+    // debugger;
     event.preventDefault();
-    var data = event.dataTransfer;
+    var data = event.originalEvent.dataTransfer;
     var files = data.files;
 
     for (var index = 0; index < files.length; index++) {
@@ -180,9 +162,9 @@ function bindDragEvents($targetElement) {
           var img = document.createElement('img');
           img.file = file;
           img.src = readerData;
-          replaceOriginalContent($targetElement, '<img src="' + readerData + '">');
+          placementThat.replaceOriginalContent('<img src="' + readerData + '">');
         } else if (file.type.includes("text")) {
-          replaceOriginalContent($targetElement, readerData);
+          placementThat.replaceOriginalContent(readerData);
         }
       });
     }
@@ -190,80 +172,239 @@ function bindDragEvents($targetElement) {
   });
 };
 
-function replaceOriginalContent($targetElement, data) {
-
-  var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
-
-  $newContent.css({
-    width: $targetElement.innerWidth(),
-    height: $targetElement.innerHeight()
-  });
-
-  $targetElement.replaceWith($newContent);
-
-  $newContent[0].contentWindow.document.open('text/html', 'replace');
-  $newContent[0].contentWindow.document.write(data);
-  $newContent[0].contentWindow.document.close();
-
-  $newContent.contents().find("body").css({
-    padding: 0,
-    margin: 0,
-    border: 0
-  });
-
-  removeOverlay();
-};
-
-function renderOverlay($targetElement) {
-  var position;
-
-  var offset = $targetElement.offset();
-  var divHeight = $targetElement.innerHeight();
-  var divWidth = $targetElement.innerWidth();
-
-  if (divHeight === 0 || divWidth === 0) {
-    return;
-  }
-
-  // console.log($topOfStack[0]);
-  position = $targetElement[0].getBoundingClientRect();
-
-  removeOverlay();
-
-  //add window.pageYOffset to account for scrolling
-  $overlay.css({
-    width: divWidth,
-    height: divHeight,
-    top: position.top,
-    left: position.left
-  });
-
-  $('body').append($overlay);
-
-  $dimensions.text(divWidth + 'x' + divHeight);
-};
-
-function removeOverlay() {
-  $overlay.detach();
-};
-
-function closeOverlayEventBinder() {
-  $closeOverlay.on({
-    'click': function(event) {
-      $(window).off('keydown.screenshot');
-      removeOverlay();
+PlacementOverlay.prototype.moveToParent = function() {
+  var overlayThat = this;
+  $(window).on('keydown.screenshot', function(event) {
+    //capture keydowns
+    // debugger;
+    if (event.keyCode === arrowUp) {
+      overlayThat.getProperties(overlayThat.$targetElement.parent());
+      overlayThat.render();
     }
   });
 };
 
-function pasteOverlayEventBinder() {
-  $pasteOverlay.on('click', function(event) {
+PlacementOverlay.prototype.scrollReposition = function() {
+  var placementThat = this;
+  var timer;
+  $(window).on('scroll.screenshot', function(e) {
+
+    if (timer) {
+      window.clearTimeout(timer);
+    }
+
+    console.log("top: ", placementThat.targetElementPosition.top);
+
+    timer = window.setTimeout(function() {
+
+      placementThat.$overlay.css({
+        top: placementThat.$targetElement.offset().top - window.pageYOffset,
+        left: placementThat.targetElementPosition.left
+      });
+    }, 30);
+    //16 is about 60fps
+  });
+};
+
+PlacementOverlay.prototype.paste = function() {
+  var placementThat = this;
+  this.$paste.on('click', function(event) {
     var content = window.prompt('Paste replacement content');
 
     if (content) {
-      replaceOriginalContent($topOfStack, content);
+      placementThat.replaceOriginalContent(content);
     }
   });
+};
+
+PlacementOverlay.prototype.exit = function() {
+  var placementThat = this;
+  this.$close.on('click', function() {
+    $(window).off('keydown.screenshot');
+    placementThat.unbindEvents();
+    placementThat.remove();
+  });
+};
+
+PlacementOverlay.prototype.bindEvents = function() {
+  //drag/Drop
+  this.dragDrop();
+  //keydown
+  this.moveToParent();
+  //window scroll
+  this.scrollReposition();
+  //paste event
+  this.paste();
+  //exit event
+  this.exit();
+};
+
+PlacementOverlay.prototype.unbindEvents = function() {
+  $(window).off('keydown.screenshot');
+  $('body').off('mousemove.screenshot');
+  $(window).off('scroll.screenshot');
+  $('body').off('drag.screenshot');
+  this.$overlay.off('click');
+  this.$overlay.off('dragover');
+  this.$overlay.off('dragenter');
+  this.$overlay.off('drop');
+  this.$paste.off('click');
+};
+
+PlacementOverlay.prototype.remove = function() {
+  this.$overlay.detach();
+};
+
+PlacementOverlay.prototype.render = function() {
+  if (this.targetElementDimensions.top === 0 || this.targetElementDimensions.left === 0) {
+    return;
+  }
+  this.unbindEvents();
+  this.remove();
+  this.modifyOverlay();
+  $('body').append(this.$overlay);
+  this.$dimensions.text(this.targetElementDimensions.width + 'x' + this.targetElementDimensions.height);
+  this.$overlay.attr('tabindex', '0');
+  this.$overlay.focus();
+  this.bindEvents();
+};
+
+
+
+
+
+// var $overlay = $('<div class="inspectOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999;"></div>');
+
+// var $closeOverlay = $('<button class="closeOverlay" border style="position: absolute; border: none; right: 0; padding: 2px 4px; background: rgb(0,0,0); color: white; z-index:100000000">X</button>');
+// var $pasteOverlay = $('<button class="pasteOverlay" data-toggle="modal" data-target="#pasteModal" style="position: absolute; right: 20px; padding: 2px 4px; border: none; background: rgb(0,0,0); color: white; z-index:100000000">P</button>');
+// var $dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px"></div>');
+
+// //Append Close Option
+// $overlay.append($closeOverlay);
+// closeOverlayEventBinder();
+
+// //Append Paste Option
+// $overlay.append($pasteOverlay);
+// pasteOverlayEventBinder();
+
+// $overlay.append($dimensions);
+
+// var elementsStack;
+
+// // File Upload Handlers
+// function cancelDefaultDrop(event) {
+//   if (event.preventDefault) { 
+//     event.preventDefault();
+//     event.stopPropagation();
+//   }
+//   return false;
+// };
+
+// function bindDragEvents($targetElement) {
+//   $('body').on('drag.screenshot', function(event) {
+//     event.preventDefault();
+//   });
+
+//   $overlay.on('dragover', cancelDefaultDrop);
+//   $overlay.on('dragenter', cancelDefaultDrop);
+
+//   $overlay.on('drop', function(event) {
+//     event.preventDefault();
+//     var data = event.dataTransfer;
+//     var files = data.files;
+
+//     for (var index = 0; index < files.length; index++) {
+//       var file = files[index];
+//       var reader = new FileReader();
+
+//       //Determine MIME type here
+//       if (file.type.includes("image")) {
+//         reader.readAsDataURL(file);      
+//       } else if (file.type.includes("text")) {
+//         reader.readAsText(file);
+//       } else {
+//         alert("File Type not recognized");
+//       }
+
+//       reader.addEventListener('loadend', function(event) {
+
+//         var readerData = this.result;
+
+//         if (file.type.includes("image")) {
+//           var img = document.createElement('img');
+//           img.file = file;
+//           img.src = readerData;
+//           replaceOriginalContent($targetElement, '<img src="' + readerData + '">');
+//         } else if (file.type.includes("text")) {
+//           replaceOriginalContent($targetElement, readerData);
+//         }
+//       });
+//     }
+//     return false;
+//   });
+// };
+
+// function replaceOriginalContent($targetElement, data) {
+
+//   var $newContent = $('<iframe frameborder="0" scrolling="no"></iframe>');
+
+//   $newContent.css({
+//     width: $targetElement.innerWidth(),
+//     height: $targetElement.innerHeight()
+//   });
+
+//   $targetElement.replaceWith($newContent);
+
+//   $newContent[0].contentWindow.document.open('text/html', 'replace');
+//   $newContent[0].contentWindow.document.write(data);
+//   $newContent[0].contentWindow.document.close();
+
+//   $newContent.contents().find("body").css({
+//     padding: 0,
+//     margin: 0,
+//     border: 0
+//   });
+
+//   removeOverlay();
+// };
+
+// function renderOverlay($targetElement) {
+//   var position;
+
+//   var divHeight = $targetElement.innerHeight();
+//   var divWidth = $targetElement.innerWidth();
+
+//   if (divHeight === 0 || divWidth === 0) {
+//     return;
+//   }
+
+//   // console.log($topOfStack[0]);
+//   position = $targetElement[0].getBoundingClientRect();
+
+//   removeOverlay();
+
+//   //add window.pageYOffset to account for scrolling
+//   $overlay.css({
+//     width: divWidth,
+//     height: divHeight,
+//     top: position.top,
+//     left: position.left
+//   });
+
+//   $('body').append($overlay);
+
+//   $dimensions.text(divWidth + 'x' + divHeight);
+// };
+
+
+
+var selectionOverlay = new SelectionOverlay();
+selectionOverlay.initialize();
+var placementOverlay = new PlacementOverlay();
+placementOverlay.initialize();
+
+function renderPlacement() {
+  placementOverlay.render();
 };
 
 chrome.runtime.onMessage.addListener(
@@ -271,9 +412,7 @@ chrome.runtime.onMessage.addListener(
     if ( request.message === "clicked_browser_action" ) {
 
       //create new instance here
-      var currentSelectionOverlay;
-      var currentPlacementOverlay;
-      //get instance of SelectionOverlay and PlacementOverlay and make them call their removeBindEvents function
+      //get instance of SelectionOverlay and PlacementOverlay and make them call their removeEventHandlers function
         //use an if statement to determine if they exist yet or not
           //if (currentSelectionOverlay)
             //SelectionOverly.unbindEvents
@@ -284,12 +423,13 @@ chrome.runtime.onMessage.addListener(
 
       console.log("Content.js is running!");
 
-      $(window).off('scroll.screenshot');
-      $('body').off('drag.screenshot');
-      $overlay.off('click');      
-      $overlay.off('dragover');
-      $overlay.off('dragenter');
-      $overlay.off('drop');
+      // $('body').off('mousemove.screenshot');
+      // $(window).off('scroll.screenshot');
+      // $('body').off('drag.screenshot');
+      // $overlay.off('click');      
+      // $overlay.off('dragover');
+      // $overlay.off('dragenter');
+      // $overlay.off('drop');
 
       //separate this into two states, selecting and placement
       //that includes event binding
@@ -306,52 +446,65 @@ chrome.runtime.onMessage.addListener(
         //when instantiating placement, also have a function instantiate event binders and append paste and exit option overlays into the PlacementOverlay
         //paste and exit event binders
 
-      $overlay.one('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
+      // $overlay.one('click', function(event) {
+      //   event.stopPropagation();
+      //   event.preventDefault();
 
-        $(window).on('scroll.screenshot', function(e) {
-          var position = $(elementsStack[0])[0].getBoundingClientRect();
+      //   $(window).on('scroll.screenshot', function(e) {
 
-          $overlay.css({
-            top: position.top,
-            left: position.left
-          });
-        });
+      //     var position = $(elementsStack[0])[0].getBoundingClientRect();
 
-        $('body').off('mousemove.screenshot');
+      //     $overlay.css({
+      //       top: position.top,
+      //       left: position.left
+      //     });
+      //   });
 
-        //Set focus on overlay so keydowns can be captured
-        $(this).attr('tabindex', '0');
-        $(this).focus();
+      //   $('body').off('mousemove.screenshot');
 
-        //Initialize drop
-        bindDragEvents();
+      //   //Set focus on overlay so keydowns can be captured
+      //   $(this).attr('tabindex', '0');
+      //   $(this).focus();
 
-        $(window).on('keydown.screenshot', function(event) {
-          var $topOfStack;
+      //   //Initialize drop
+      //   bindDragEvents();
 
-          var pendingTopOfStack;
-          //capture keydowns
-          if (event.keyCode === arrowUp) {
+      //   $(window).on('keydown.screenshot', function(event) {
+      //     var $topOfStack;
 
-            pendingTopOfStack = elementsStack.shift();
+      //     var pendingTopOfStack;
+      //     //capture keydowns
+      //     if (event.keyCode === arrowUp) {
 
-            // Test for presence of $overlay object?
-            if ($(pendingTopOfStack).is('.inspectOverlay')) {
-              pendingTopOfStack = elementsStack.shift();
-            }
+      //       pendingTopOfStack = elementsStack.shift();
 
-            $topOfStack = $(elementsStack[0]);
+      //       // Test for presence of $overlay object?
+      //       if ($(pendingTopOfStack).is('.inspectOverlay')) {
+      //         pendingTopOfStack = elementsStack.shift();
+      //       }
 
-            renderOverlay($topOfStack);
+      //       $topOfStack = $(elementsStack[0]);
 
-            $('.inspectOverlay').focus();
-          }
-        });
-      });
+      //       renderOverlay($topOfStack);
+
+      //       $('.inspectOverlay').focus();
+      //     }
+      //   });
+      // });
 
       //NOT apart of any class, this determine stack and selectedElement to pass to instantiations of SelectionOverlay and PlacementOverlay
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+      //on browser action click, remove all event binds
+      placementOverlay.remove();
+      placementOverlay.unbindEvents();
+      var targetElementPosition;
+      var targetElementDimensions;
+
+      //bindClick must set placementFlag to true
+      selectionOverlay.bindClick(targetElementPosition, targetElementDimensions);
 
       $('body').on('mousemove.screenshot', function(event) {
         var $targetElement;
@@ -366,18 +519,25 @@ chrome.runtime.onMessage.addListener(
         //maybe use elementFromPoint to just get one element instead of the whole stack?
 
         //get elements on point from coordinates, this provides me the stack
-        elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
+        var elementsStack = document.elementsFromPoint(mouseCoordinateX, mouseCoordinateY);
 
-        if ($(elementsStack[0]).is('.inspectOverlay')) {
+        if ($(elementsStack[0]).is('.selectionOverlay')) {
           $targetElement = $(elementsStack[1]);
         } else {
           $targetElement = $(elementsStack[0]);
         }
 
-        //modify currentSelectionOverlay instance to accept new $targetElement
-        //currentSelectionOverlay.render();
+        targetElementPosition = $targetElement[0].getBoundingClientRect();
+        targetElementDimensions = {
+          width: $targetElement.innerWidth(),
+          height: $targetElement.innerHeight()
+        };
 
-        renderOverlay($targetElement);
+        //modify selectionOverlay instance to accept new $targetElement
+        placementOverlay.getProperties($targetElement);
+        selectionOverlay.render(targetElementPosition, targetElementDimensions);
+
+        // renderOverlay($targetElement);
       });
     }
   }
