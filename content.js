@@ -3,7 +3,7 @@ var arrowUp = 38;
 function SelectionOverlay() {
   this.$overlay = $('<div class="selectionOverlay" style="position: fixed; background-color: rgba(255, 255, 0, 0.4); z-index: 99999999"></div>');
   this.$dimensions = $('<div class="overlayDimensions" style="display: block; position: absolute; z-index: 100000000; background-color: black; color: white; font-family: Helvetica; padding: 1px"></div>');
-};
+}
 
 SelectionOverlay.prototype.initialize = function() {
   //initializes object by appending dimensions to overlay
@@ -57,7 +57,7 @@ function PlacementOverlay() {
   this.$targetElement;
   this.position;
   this.dimensions;
-};
+}
 
 PlacementOverlay.prototype.initialize = function() {
   this.$overlay.append(this.$dimensions);
@@ -96,7 +96,7 @@ PlacementOverlay.prototype.modifyOverlay = function() {
     height: this.targetElementDimensions.height,
     top: this.targetElementPosition.top,
     left: this.targetElementPosition.left
-  })
+  });
 };
 
 PlacementOverlay.prototype.replaceOriginalContent = function(data) {
@@ -272,7 +272,7 @@ placementOverlay.initialize();
 
 function renderPlacement() {
   placementOverlay.render();
-};
+}
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -329,7 +329,7 @@ chrome.runtime.onMessage.addListener(
 //VIDEO
 function saveRedirectURL(redirectUrl) {
   chrome.storage.local.set({"redirectUrl": redirectUrl});
-};
+}
 
 var contentPort = chrome.runtime.connect({name: "contentToBackground"});
 

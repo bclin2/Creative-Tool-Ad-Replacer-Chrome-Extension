@@ -11,7 +11,7 @@ function imageReplacer() {
     chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
   });
   window.close();
-};
+}
 
 function videoToggle() { 
   var checked = document.getElementById('videoToggle').checked;
@@ -25,7 +25,7 @@ function videoToggle() {
   chrome.storage.local.set({"videoToggleStatus": checked});
 
   port.postMessage({videoToggle: checked});
-};
+}
 
 function checkAndAssignVideoToggleStatus() {
   var toggle;
@@ -40,7 +40,7 @@ function checkAndAssignVideoToggleStatus() {
       }
     }
   });
-};
+}
 
 checkAndAssignVideoToggleStatus();
 
