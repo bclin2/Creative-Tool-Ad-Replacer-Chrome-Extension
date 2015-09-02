@@ -3,8 +3,7 @@
  
   "name": "Creative Tool Ad Replacer",
   "description": "This extension will visually replace ads on a webpage",
-  "version": "1.3",
- 
+  "version": "1.4",
 
   "background": {
     "scripts": ["js/library/jquery-2.1.4.min.js", "background.js"]
