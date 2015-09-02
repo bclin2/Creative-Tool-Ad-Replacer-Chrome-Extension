@@ -8,6 +8,8 @@ chrome.storage.local.clear(function() {
 
 //var infiniteLoopURL = https://rtr.innovid.com/r1.55e4831dc3b3c3.17762631;cb=[timestamp]
 var redirectUrl;
+var blockedUrls;
+var counter = 0;
 
 var vastRedirectAddListener = function(details) {
   if (details.type === "script" || details.url.includes("crossdomain.xml")) {
@@ -34,48 +36,36 @@ var vastRedirectAddListener = function(details) {
   if (!statusFlag) {
     responseHeaders.push({"name": "Status", "value": "302"});
   }
+
+  counter++;
+
+  if (counter > 5) {
+    counter = 0;
+    chrome.webRequest.onHeadersReceived.removeListener(vastRedirectAddListener);
+    setTimeout(vastWebRequestRedirect, 5000);
+  }
+
   //not adding the responseHeaders seem to make no difference
   blockingResponse.responseHeaders = responseHeaders;
-  blockingResponse.redirectUrl = redirectUrl;
+  blockingResponse.redirectUrl = redirectUrl;  
   return blockingResponse;
 };
 
-var inputVastRedirectUrlCheck = function(inputVastTag) {
-  var baseBlockedUrls = [
-    ".telemetryverification.net/",
-    ".vindicosuite.com/",
-    ".tidaltv.com/",
-    ".mookie1.com/",
-    ".doubleclick.net/",
-    "rtr.innovid.com/r1",
-    ".freewheel.tv/",
-    "optimized-by.rubiconproject.com/a/api/vast",
-    "uswvideo.adsrvr.org/data/vast/",
-    ".liverail.com/",
-    "ads.adaptv.advertising.com/",
-    "search.spotxchange.com/vast/",
-    "vpc.altitude-arena.com/",
-    ".tubemogul.com/",
-    "vast.yashi.com/",
-    "dbam.dashbida.com/kitaramedia/vast/",
-    "app.scanscout.com/",
-    ".amazon-adsystem.com/"
-  ];
-
-  for (var i = 0; i < baseBlockedUrls.length; i++) {
-    if (inputVastTag.includes(baseBlockedUrls[i])) {
-      return i;
-    }
-  }
+var vastWebRequestRedirect = function() {
+  chrome.webRequest.onHeadersReceived.addListener(
+    vastRedirectAddListener,
+    {
+      urls: blockedUrls,
+      types: ['other']
+    },  //event filtering 
+    ["blocking", "responseHeaders"]
+  );  
 };
 
-
 chrome.runtime.onConnect.addListener(function(port) {
-  // console.log("Connected...", port);
   var removedBlockUrl;
   var removedBlockUrlIndex;
   port.onMessage.addListener(function(message) {
-    // console.log("message received: ", message);
     blockedUrls = [
       '*://*.telemetryverification.net/*',
       '*://*.vindicosuite.com/*',
@@ -99,27 +89,13 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 
     if (message.redirectUrl) {
-      // console.log("content.js: ", message.redirectUrl);
       //receive redirectURL
       redirectUrl = message.redirectUrl;
-      removedBlockUrlIndex = inputVastRedirectUrlCheck(redirectUrl);
-      removedBlockUrl = blockedUrls[removedBlockUrlIndex];
-      blockedUrls.splice(removedBlockUrlIndex, 1);
-      console.log(blockedUrls);
       //add event listener 
-      chrome.webRequest.onHeadersReceived.addListener(
-        vastRedirectAddListener,
-        {
-          urls: blockedUrls,
-          types: ['other']
-        },  //event filtering 
-        ["blocking", "responseHeaders"]
-      );  
+      vastWebRequestRedirect();
     } else {
       chrome.webRequest.onHeadersReceived.removeListener(vastRedirectAddListener);
     }
 
-    blockedUrls.splice(removedBlockUrlIndex, 0, removedBlockUrl);
-    console.log(blockedUrls);
   });
 });
